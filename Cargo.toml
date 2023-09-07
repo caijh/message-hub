@@ -1,0 +1,26 @@
+[package]
+name = "messagehub"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+env_logger = "*"
+futures = "0.1.17"
+actix-web = "1.0"
+log = "*"
+chrono = "0.4"
+url = "*"
+serde_json = "*"
+serde = "*"
+serde_derive = "*"
+rust-crypto = "^0.2"
+rkv = "0.10"
+#rkv = { git = "https://github.com/mozilla/rkv" }
+config = "0.9"
+lazy_static = "*"
+clap = "~2.33"
+reqwest = "0.9.16"
+quick-xml = "0.12.0"
+uuid = { version = "0.7", features = ["v4"] }
