@@ -10,7 +10,7 @@ pub struct Config {
     pub wxcorp_secret: String,
     pub wxcorp_app_id: String,
     pub wxcorp_token: String,
-    pub wxcorp_aes_key: String,
+    pub wxcorp_encoding_aes_key: String,
     pub db_path: String,
     pub listen: String,
 }

@@ -1,4 +1,5 @@
 use aes::Aes256;
+
 use serde_derive::{Deserialize, Serialize};
 use crate::config::CONFIG;
 use lazy_static::lazy_static;
@@ -8,6 +9,8 @@ use base64::{alphabet, Engine};
 use base64::engine::GeneralPurpose;
 use block_modes::block_padding::Pkcs7;
 use block_modes::{BlockMode, Cbc};
+
+
 
 type AesCbc = Cbc<Aes256, Pkcs7>;
 
@@ -29,6 +32,12 @@ pub struct SendMessageResult {
     unlicenseduser: Option<String>,
     msgid: Option<String>,
     response_code: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct DecryptMessage {
+    pub content: String,
+    pub from_receive_id: String,
 }
 
 
@@ -128,20 +137,35 @@ pub fn verify_url(
     let mut hasher = Sha1::default();
     hasher.update(message.as_bytes());
     let signature = hasher.digest().to_string();
+    println!("Calculated signature: {}", signature);
     if signature != msg_signature {
         return Err("AesException.ValidateSignatureError".to_string());
     }
-    let aes_key = &config.wxcorp_aes_key;
-    let result = decrypt(&aes_key, echo_str);
 
-    String::from_utf8(result.into_bytes()).map_err(|_| "Utf8DecodingError".to_string())
+    let aes_key = &config.wxcorp_encoding_aes_key;
+    let result = decrypt(aes_key, echo_str);
+
+    String::from_utf8(result.content.into_bytes()).map_err(|_| "Utf8DecodingError".to_string())
 }
 
-pub fn decrypt(aes_key: &str, text: &str) -> String {
+pub fn decrypt(aes_key: &str, text: &str) -> DecryptMessage {
+    let engine = GeneralPurpose::new(&alphabet::STANDARD, base64::engine::general_purpose::PAD);
+    let encrypted = engine.decode(text).unwrap();
+
     let engine = GeneralPurpose::new(&alphabet::STANDARD, base64::engine::general_purpose::NO_PAD);
-    let decoded = engine.decode(text).unwrap();
-    let cipher = AesCbc::new_from_slices(aes_key.as_bytes(), &decoded[0..16]).unwrap();
-    String::from_utf8(cipher.decrypt_vec(&decoded[16..]).unwrap()).unwrap()
+    let aes_key_bin = engine.decode(aes_key).unwrap();
+    let iv = &aes_key_bin[..16];
+    let cipher = AesCbc::new_from_slices(aes_key_bin.as_slice(), iv).unwrap();
+    let decrypted = cipher.decrypt_vec(&encrypted).unwrap();
+    let content = &decrypted[16..];
+    let length = u32::from_be_bytes(content[0..4].try_into().unwrap()) as usize;
+    let msg_content =String::from_utf8_lossy(&content[4..(4 + length)]).to_string();
+    let receive_id   = String::from_utf8_lossy(&content[(4 + length)..]).to_string();
+
+    DecryptMessage {
+        content: msg_content,
+        from_receive_id: receive_id
+    }
 }
 
 lazy_static! {

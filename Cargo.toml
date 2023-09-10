@@ -17,7 +17,6 @@ serde = "*"
 serde_derive = "*"
 rust-crypto = "^0.2"
 rkv = "0.10"
-#rkv = { git = "https://github.com/mozilla/rkv" }
 config = "0.9"
 lazy_static = "*"
 clap = "~2.33"

@@ -35,7 +35,7 @@ pub fn parse_message(username: &str, msg: &String) -> TextCardMessage {
         textcard: TextCard {
             title: "设备通知".to_string(),
             description: msg.to_string(),
-            url: "".to_string(),
+            url: "https://www.baidu.com".to_string(),
             btntxt: "更多".to_string(),
         },
         enable_id_trans: 0,
