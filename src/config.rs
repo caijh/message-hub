@@ -6,10 +6,11 @@ use serde_derive::Deserialize;
 
 #[derive(Debug, Deserialize, Clone)]
 pub struct Config {
-    pub corpid: String,
-    pub corpsecret: String,
-    pub agentid: String,
-    pub token: String,
+    pub wxcorp_id: String,
+    pub wxcorp_secret: String,
+    pub wxcorp_app_id: String,
+    pub wxcorp_token: String,
+    pub wxcorp_aes_key: String,
     pub db_path: String,
     pub listen: String,
 }

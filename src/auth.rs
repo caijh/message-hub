@@ -22,7 +22,7 @@ pub fn check_signature(signature: &str, timestamp: &str, nonce: &str) -> bool {
     debug!("signature:{}", signature);
     debug!("timestamp:{}", timestamp);
     debug!("nonce:{}", nonce);
-    let token: String = CONFIG.token.clone();
+    let token: String = CONFIG.wxcorp_token.clone();
     let mut v = [token, timestamp.to_string(), nonce.to_string()];
     v.sort();
 

@@ -7,6 +7,7 @@ extern crate log;
 #[macro_use]
 extern crate serde_derive;
 
+
 use std::io::prelude::*;
 
 use actix_web::{App, HttpResponse, HttpServer, Responder, web};
@@ -72,7 +73,7 @@ pub struct MsgReqBody {
     pub content: String,
 }
 
-fn wx_post(user: Path<User>, query: web::Query<Signature>, message: Json<MsgReqBody>) -> impl Responder {
+async fn wx_post(user: Path<User>, query: web::Query<Signature>, message: Json<MsgReqBody>) -> impl Responder {
     debug!("POST /send/{}", user.username);
     let signature = &query.signature;
     let timestamp = &query.timestamp;
@@ -97,7 +98,7 @@ fn wx_post(user: Path<User>, query: web::Query<Signature>, message: Json<MsgReqB
     }
 }
 
-fn wx_auth(query: web::Query<AuthEchoInfo>) -> impl Responder {
+async fn wx_auth(query: web::Query<AuthEchoInfo>) -> impl Responder {
     debug!("get /auth");
     debug!("query:{:?}", query);
     let signature = &query.signature;
@@ -107,14 +108,38 @@ fn wx_auth(query: web::Query<AuthEchoInfo>) -> impl Responder {
     debug!("echostr:{}", echostr);
     if auth::check_signature(signature, timestamp, nonce) {
         debug!("auth pass!");
-        HttpResponse::Ok().body(echostr)
+        HttpResponse::Ok().body(echostr.clone())
     } else {
         debug!("auth failed!");
         HttpResponse::Forbidden().finish()
     }
 }
 
-fn main() {
+#[derive(Deserialize, Debug)]
+struct WxCorpJoinValidate {
+    msg_signature: String,
+    timestamp: String,
+    nonce: String,
+    echostr: String,
+}
+
+async fn wx_corp_receive(query: web::Query<WxCorpJoinValidate>) -> impl Responder {
+    debug!("get /");
+    debug!("query:{:?}", query);
+
+    let msg_signature = &query.msg_signature;
+    let time_stamp = &query.timestamp;
+    let nonce = &query.nonce;
+    let echo_str = &query.echostr;
+    let result = wx_corp::verify_url(msg_signature, time_stamp, nonce, echo_str);
+    match result {
+        Ok(r) => HttpResponse::Ok().body(r),
+        Err(_) => HttpResponse::InternalServerError().finish()
+    }
+}
+
+#[actix_web::main]
+async fn main() -> std::io::Result<()> {
     // 初始化日志
     init_log();
 
@@ -135,11 +160,11 @@ fn main() {
 
     HttpServer::new(|| {
         App::new()
+            .route("/", web::get().to(wx_corp_receive))
             .route("/auth", web::get().to(wx_auth))
             .route("/send/{username}", web::post().to(wx_post))
     })
-        .bind(&config::CONFIG.listen)
-        .unwrap()
+        .bind(&config::CONFIG.listen)?
         .run()
-        .unwrap();
+        .await
 }

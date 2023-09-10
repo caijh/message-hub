@@ -32,7 +32,7 @@ impl SingleKvStorage {
     pub fn put_single(&self, key: &str, value: &Value<'_>) {
         let env = self.env.read().unwrap();
         let mut writer = env.write().unwrap();
-        self.single.put(&mut writer, key, &value).unwrap();
+        self.single.put(&mut writer, key, value).unwrap();
         writer.commit().unwrap();
     }
 

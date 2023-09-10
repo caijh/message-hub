@@ -25,7 +25,7 @@ pub struct TextCard {
 
 
 pub fn parse_message(username: &str, msg: &String) -> TextCardMessage {
-    let agentid: String = CONFIG.agentid.clone();
+    let agentid: String = CONFIG.wxcorp_app_id.clone();
     TextCardMessage {
         touser: Some(username.to_string()),
         toparty: None,

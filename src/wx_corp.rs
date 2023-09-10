@@ -1,7 +1,15 @@
+use aes::Aes256;
 use serde_derive::{Deserialize, Serialize};
 use crate::config::CONFIG;
 use lazy_static::lazy_static;
+use sha1_smol::Sha1;
 use crate::auth::AccessToken;
+use base64::{alphabet, Engine};
+use base64::engine::GeneralPurpose;
+use block_modes::block_padding::Pkcs7;
+use block_modes::{BlockMode, Cbc};
+
+type AesCbc = Cbc<Aes256, Pkcs7>;
 
 #[derive(Debug, Serialize, Deserialize)]
 struct GetTokenResult {
@@ -20,9 +28,8 @@ pub struct SendMessageResult {
     invalidtag: Option<String>,
     unlicenseduser: Option<String>,
     msgid: Option<String>,
-    response_code: Option<String>
+    response_code: Option<String>,
 }
-
 
 
 pub struct WxCorpInterface {
@@ -46,8 +53,8 @@ impl WxCorpInterface {
 
     fn get_access_token_internal(&self) -> AccessToken {
         let config = CONFIG.clone();
-        let corpid = config.corpid;
-        let secret = config.corpsecret;
+        let corpid = config.wxcorp_id;
+        let secret = config.wxcorp_secret;
         let client = reqwest::Client::new();
         let res: GetTokenResult = client
             .get("https://qyapi.weixin.qq.com/cgi-bin/gettoken")
@@ -106,6 +113,37 @@ impl WxCorpInterface {
     }
 }
 
+pub fn verify_url(
+    msg_signature: &str,
+    time_stamp: &str,
+    nonce: &str,
+    echo_str: &str,
+) -> Result<String, String> {
+    let config = CONFIG.clone();
+    let token = config.wxcorp_token;
+    // 校验签名
+    let mut args: Vec<&str> = vec![token.as_str(), time_stamp, nonce, echo_str];
+    args.sort();
+    let message = args.join("");
+    let mut hasher = Sha1::default();
+    hasher.update(message.as_bytes());
+    let signature = hasher.digest().to_string();
+    if signature != msg_signature {
+        return Err("AesException.ValidateSignatureError".to_string());
+    }
+    let aes_key = &config.wxcorp_aes_key;
+    let result = decrypt(&aes_key, echo_str);
+
+    String::from_utf8(result.into_bytes()).map_err(|_| "Utf8DecodingError".to_string())
+}
+
+pub fn decrypt(aes_key: &str, text: &str) -> String {
+    let engine = GeneralPurpose::new(&alphabet::STANDARD, base64::engine::general_purpose::NO_PAD);
+    let decoded = engine.decode(text).unwrap();
+    let cipher = AesCbc::new_from_slices(aes_key.as_bytes(), &decoded[0..16]).unwrap();
+    String::from_utf8(cipher.decrypt_vec(&decoded[16..]).unwrap()).unwrap()
+}
+
 lazy_static! {
-    pub static ref INTERFACE: WxCorpInterface = WxCorpInterface::new();
+    pub static ref INTERFACE: WxCorpInterface = WxCorpInterface::default();
 }

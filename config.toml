@@ -1,7 +1,8 @@
 # 监听地址
 listen = "0.0.0.0:8800"
-corpid = "wx5acd74cc05ef6132"
-corpsecret = "Os5rC2-aEGC84V1wcLsjpCOadVXrUknQvj_1NC_ws_E"
-agentid = "1000002"
+wxcorp_id = "wx5acd74cc05ef6132"
+wxcorp_secret = "Os5rC2-aEGC84V1wcLsjpCOadVXrUknQvj_1NC_ws_E"
+wxcorp_app_id = "1000002"
+wxcorp_token = "123456"
+wxcorp_aes_key= "122333e"
 db_path = "db"
-token = "123456"
