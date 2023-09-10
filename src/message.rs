@@ -24,14 +24,14 @@ pub struct TextCard {
 }
 
 
-pub fn parse_message(username: &str, msg: &String) -> TextCardMessage {
-    let agentid: String = CONFIG.wxcorp_app_id.clone();
+pub fn parse_message(username: &str, msg: &str) -> TextCardMessage {
+    let wx_corp_id: String = CONFIG.wxcorp_app_id.clone();
     TextCardMessage {
         touser: Some(username.to_string()),
         toparty: None,
         totag: None,
         msgtype: "textcard".to_string(),
-        agentid,
+        agentid: wx_corp_id,
         textcard: TextCard {
             title: "设备通知".to_string(),
             description: msg.to_string(),

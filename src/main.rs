@@ -73,12 +73,13 @@ pub struct MsgReqBody {
     pub content: String,
 }
 
-async fn wx_post(user: Path<User>, query: web::Query<Signature>, message: Json<MsgReqBody>) -> impl Responder {
+async fn handle_send(user: Path<User>, query: web::Query<Signature>, message: Json<MsgReqBody>) -> impl Responder {
     debug!("POST /send/{}", user.username);
     let signature = &query.signature;
     let timestamp = &query.timestamp;
     let nonce = &query.nonce;
-    if !auth::check_signature(signature, timestamp, nonce) {
+    let content = message.content.as_str();
+    if !auth::check_signature(signature, timestamp, nonce, content) {
         debug!("auth failed!");
         return HttpResponse::Forbidden().finish();
     }
@@ -89,29 +90,12 @@ async fn wx_post(user: Path<User>, query: web::Query<Signature>, message: Json<M
     let user = user::INTERFACE.get_user(username);
     match user {
         Ok(_) => {
-            let msg = message::parse_message(username.as_str(), &message.content);
+            let msg = message::parse_message(username.as_str(), content);
             HttpResponse::Ok().body(do_wx_corp(msg))
         }
         Err(_) => {
             HttpResponse::Forbidden().finish()
         }
-    }
-}
-
-async fn wx_auth(query: web::Query<AuthEchoInfo>) -> impl Responder {
-    debug!("get /auth");
-    debug!("query:{:?}", query);
-    let signature = &query.signature;
-    let timestamp = &query.timestamp;
-    let nonce = &query.nonce;
-    let echostr = &query.echostr;
-    debug!("echostr:{}", echostr);
-    if auth::check_signature(signature, timestamp, nonce) {
-        debug!("auth pass!");
-        HttpResponse::Ok().body(echostr.clone())
-    } else {
-        debug!("auth failed!");
-        HttpResponse::Forbidden().finish()
     }
 }
 
@@ -138,6 +122,10 @@ async fn wx_corp_receive(query: web::Query<WxCorpJoinValidate>) -> impl Responde
     }
 }
 
+async fn handle_wx_corp_receive() -> impl Responder {
+    HttpResponse::Ok()
+}
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     // 初始化日志
@@ -161,8 +149,8 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(|| {
         App::new()
             .route("/", web::get().to(wx_corp_receive))
-            .route("/auth", web::get().to(wx_auth))
-            .route("/send/{username}", web::post().to(wx_post))
+            .route("/", web::post().to(handle_wx_corp_receive))
+            .route("/send/{username}", web::post().to(handle_send))
     })
         .bind(&config::CONFIG.listen)?
         .run()
