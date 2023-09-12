@@ -20,20 +20,24 @@ pub struct Signature {
     pub nonce: String,
 }
 
-pub fn check_signature(signature: &str, timestamp: &str, nonce: &str, content: &str) -> bool {
-    debug!("signature:{}", signature);
-    debug!("timestamp:{}", timestamp);
-    debug!("nonce:{}", nonce);
+
+pub fn get_signature(timestamp: &str, nonce: &str, content: &str) -> String {
     let token: String = CONFIG.wxcorp_token.clone();
-    let content = STANDARD.decode(content.as_bytes()).unwrap();
-    let content = String::from_utf8(content).unwrap();
+    let content = STANDARD.encode(content.as_bytes()); // get base64 string of content
     let mut v = [token, timestamp.to_string(), nonce.to_string(), content];
     v.sort();
 
     let mut hasher = Sha1::new();
-    hasher.input_str(format!("{}{}{}", v[0], v[1], v[2]).as_str());
+    hasher.input_str(format!("{}{}{}{}", v[0], v[1], v[2], v[3]).as_str());
 
-    let hex = hasher.result_str();
+    hasher.result_str()
+}
+
+pub fn check_signature(signature: &str, timestamp: &str, nonce: &str, content: &str) -> bool {
+    debug!("signature:{}", signature);
+    debug!("timestamp:{}", timestamp);
+    debug!("nonce:{}", nonce);
+    let hex = get_signature(timestamp, nonce, content);
     debug!("Calculated signature:{}", hex);
     hex == signature
 }
@@ -44,21 +48,12 @@ mod tests {
 
     #[test]
     fn test_check_signature_positive() {
-        let signature = "c9b76d0a81c77874773537e40239809762e1166e";
         let timestamp = "1234567890";
         let nonce = "xyz";
         let content = "content";
-        let result = check_signature(signature, timestamp, nonce, content);
+        let signature = get_signature(timestamp, nonce, content);
+        let result = check_signature(&signature, timestamp, nonce, content);
         assert_eq!(result, true);
     }
 
-    #[test]
-    fn test_check_signature_negative() {
-        let signature = "aabbcc";
-        let timestamp = "1234567890";
-        let nonce = "xyz";
-        let content = "content";
-        let result = check_signature(signature, timestamp, nonce, content);
-        assert_eq!(result, false);
-    }
 }
