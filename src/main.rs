@@ -48,15 +48,6 @@ fn init_log() {
 }
 
 #[derive(Deserialize, Debug)]
-struct AuthEchoInfo {
-    signature: String,
-    timestamp: String,
-    nonce: String,
-    echostr: String,
-}
-
-
-#[derive(Deserialize, Debug)]
 struct User {
     username: String,
 }
