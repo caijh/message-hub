@@ -13,6 +13,12 @@ pub struct Config {
     pub wxcorp_encoding_aes_key: String,
     pub db_path: String,
     pub listen: String,
+    pub database_host: String,
+    pub database_port: u16,
+    pub database_user: String,
+    pub database_password: String,
+    pub database_name: String,
+    pub database_type: String,
 }
 
 impl Config {

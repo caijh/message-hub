@@ -1,6 +1,11 @@
+use rbatis::{crud, impl_select};
+use rbatis::rbdc::datetime::DateTime;
 use serde_derive::{Deserialize, Serialize};
 
 use crate::config::CONFIG;
+use crate::database::DatabaseService;
+use crate::services::SERVICES;
+use crate::wx_corp::WxCorpService;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct TextCardMessage {
@@ -13,6 +18,7 @@ pub struct TextCardMessage {
     pub enable_id_trans: i32,
     pub enable_duplicate_check: i32,
     pub duplicate_check_interval: i32,
+    pub uuid: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -23,24 +29,81 @@ pub struct TextCard {
     pub btntxt: String,
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct Message {
+    pub id: Option<i64>,
+    pub uuid: Option<String>,
+    pub title: Option<String>,
+    pub content: Option<String>,
+    pub send_time: Option<DateTime>,
+}
+crud!(Message {});
+impl_select!(Message{select_by_uuid(uuid:&str) -> Option => "`where uuid = #{uuid}`"});
 
-pub fn parse_message(username: &str, msg: &str) -> TextCardMessage {
-    let wx_corp_id: String = CONFIG.wxcorp_app_id.clone();
-    TextCardMessage {
-        touser: Some(username.to_string()),
-        toparty: None,
-        totag: None,
-        msgtype: "textcard".to_string(),
-        agentid: wx_corp_id,
-        textcard: TextCard {
-            title: "设备通知".to_string(),
-            description: msg.to_string(),
-            url: "https://www.baidu.com".to_string(),
-            btntxt: "更多".to_string(),
-        },
-        enable_id_trans: 0,
-        enable_duplicate_check: 0,
-        duplicate_check_interval: 0,
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct MessageReceiver {
+    pub id: Option<i64>,
+    pub message_id: Option<i64>,
+    pub user_id: Option<String>,
+}
+crud!(MessageReceiver {});
+
+impl TextCardMessage {
+    pub fn new(user: &str, message: &Message) -> Self {
+        let wx_corp_app_id: String = CONFIG.wxcorp_app_id.clone();
+        TextCardMessage {
+            uuid: message.uuid.clone(),
+            touser: Some(user.to_string()),
+            toparty: None,
+            totag: None,
+            msgtype: "textcard".to_string(),
+            agentid: wx_corp_app_id,
+            textcard: TextCard {
+                title: "设备通知".to_string(),
+                description: format!("通知内容:{}<br/>通知时间：{}<br/>", message.content.clone().unwrap(), chrono::Local::now().format("%Y-%m-%d %H:%M:%S")),
+                url: format!("https://messagehub.junhuitsai.space/message/{}", message.uuid.clone().unwrap()),
+                btntxt: "查看详情".to_string(),
+            },
+            enable_id_trans: 0,
+            enable_duplicate_check: 0,
+            duplicate_check_interval: 0,
+        }
     }
 }
 
+pub async fn send_by_wx_corp(username: &str, msg: &str) -> String {
+    let message = Message {
+        id: None,
+        uuid: Some(uuid::Uuid::new_v4().to_string()),
+        title: None,
+        content: Some(msg.to_string()),
+        send_time: Some(DateTime::now()),
+    };
+    let rb = SERVICES.get::<DatabaseService>().dao();
+    let mut tx = rb.acquire_begin().await.unwrap();
+    Message::insert(&tx, &message).await.unwrap();
+    let message_receiver = MessageReceiver {
+        id: None,
+        message_id: message.id,
+        user_id: Some(username.to_string()),
+    };
+    MessageReceiver::insert(&tx, &message_receiver).await.unwrap();
+
+    let msg = TextCardMessage::new(username, &message);
+
+    let json = serde_json::to_string(&msg).unwrap();
+    let result = SERVICES.get::<WxCorpService>().send(&json);
+    if result.is_success() {
+        MessageReceiver::delete_by_column(&tx, "message_id", &message.id.unwrap()).await.unwrap();
+        Message::delete_by_column(&tx, "uuid", &message.uuid.unwrap()).await.unwrap();
+    }
+    tx.commit().await.unwrap();
+    tx.rollback().await.unwrap();
+    serde_json::to_string(&result).unwrap()
+}
+
+pub async fn get_message_detail(uuid: &str) -> Option<Message> {
+    let rb = SERVICES.get::<DatabaseService>().dao();
+    let message = Message::select_by_uuid(&rb, uuid).await.unwrap();
+    message
+}

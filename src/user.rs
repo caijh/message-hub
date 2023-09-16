@@ -1,6 +1,9 @@
 use reqwest::Error;
-use messagehub::wx_corp;
+use serde_derive::{Deserialize, Serialize};
+
 use crate::config::CONFIG;
+use crate::services::SERVICES;
+use crate::wx_corp::WxCorpService;
 
 #[derive(Debug, Deserialize, Clone, Serialize)]
 pub struct User {
@@ -27,25 +30,22 @@ pub struct User {
     pub main_department: Option<String>,
 }
 
-pub struct UserInterface {
+pub struct UserService {
     storage: super::storage::SingleKvStorage,
-}
-
-lazy_static! {
-    pub static ref INTERFACE: UserInterface = UserInterface::new();
 }
 
 const STORE: &str = "user";
 
-impl UserInterface {
-    pub fn new() -> UserInterface {
-        UserInterface {
+impl UserService {
+    pub fn new() -> UserService {
+        UserService {
             storage: super::storage::SingleKvStorage::new(&CONFIG.db_path, STORE),
         }
     }
 
     fn get_user_name_internal(&self, id: &str) -> Result<User, Error> {
-        let token = wx_corp::INTERFACE.get_access_token();
+        let wx_corp_service = SERVICES.get::<WxCorpService>();
+        let token = wx_corp_service.get_access_token();
         let client = reqwest::Client::new();
         let res: Result<User, Error> = client
             .get("https://qyapi.weixin.qq.com/cgi-bin/user/get")
@@ -74,7 +74,7 @@ impl UserInterface {
                         }
                         self.storage.put_single(id, &rkv::Value::Json(&serde_json::to_string(&u).unwrap()));
                         Ok(u)
-                    },
+                    }
                     Err(_) => Err("未找到用户")
                 }
             }

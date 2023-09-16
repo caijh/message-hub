@@ -1,28 +1,18 @@
-#[macro_use]
-extern crate clap;
-#[macro_use]
-extern crate lazy_static;
-#[macro_use]
-extern crate log;
-#[macro_use]
-extern crate serde_derive;
-
-
 use std::io::prelude::*;
 
-use actix_web::{App, HttpResponse, HttpServer, Responder, web};
-use actix_web::web::{Json, Path};
+use actix_web::{App, HttpServer, web};
+use clap::crate_version;
+use handlebars::Handlebars;
+use log::{debug, info};
 
-use messagehub::{auth, wx_corp};
-use messagehub::auth::Signature;
+use messagehub::handler;
+use messagehub::services::init_services;
 
 use crate::config::CONFIG_FILE;
 
 mod config;
 mod storage;
-mod user;
 
-mod message;
 
 // 初始化日志，自定义了日志格式
 fn init_log() {
@@ -47,85 +37,18 @@ fn init_log() {
     info!("env_logger initialized.");
 }
 
-#[derive(Deserialize, Debug)]
-struct User {
-    username: String,
-}
-
-
-fn do_wx_corp(msg: message::TextCardMessage) -> String {
-    let json = serde_json::to_string(&msg).unwrap();
-    let result = wx_corp::INTERFACE.send(&json);
-    serde_json::to_string(&result).unwrap()
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct MsgReqBody {
-    pub content: String,
-}
-
-async fn handle_send(user: Path<User>, query: web::Query<Signature>, message: Json<MsgReqBody>) -> impl Responder {
-    debug!("POST /send/{}", user.username);
-    let signature = &query.signature;
-    let timestamp = &query.timestamp;
-    let nonce = &query.nonce;
-    let content = message.content.as_str();
-    if !auth::check_signature(signature, timestamp, nonce, content) {
-        debug!("auth failed!");
-        return HttpResponse::Forbidden().finish();
-    }
-    debug!("auth pass!");
-    debug!("msg:{}", message.content);
-
-    let username = &user.username;
-    let user = user::INTERFACE.get_user(username);
-    match user {
-        Ok(_) => {
-            let msg = message::parse_message(username.as_str(), content);
-            HttpResponse::Ok().body(do_wx_corp(msg))
-        }
-        Err(_) => {
-            HttpResponse::Forbidden().finish()
-        }
-    }
-}
-
-#[derive(Deserialize, Debug)]
-struct WxCorpJoinValidate {
-    msg_signature: String,
-    timestamp: String,
-    nonce: String,
-    echostr: String,
-}
-
-async fn wx_corp_receive(query: web::Query<WxCorpJoinValidate>) -> impl Responder {
-    debug!("get /");
-    debug!("query:{:?}", query);
-
-    let msg_signature = &query.msg_signature;
-    let time_stamp = &query.timestamp;
-    let nonce = &query.nonce;
-    let echo_str = &query.echostr;
-    let result = wx_corp::verify_url(msg_signature, time_stamp, nonce, echo_str);
-    match result {
-        Ok(r) => HttpResponse::Ok().body(r),
-        Err(_) => HttpResponse::InternalServerError().finish()
-    }
-}
-
-async fn handle_wx_corp_receive() -> impl Responder {
-    HttpResponse::Ok()
-}
-
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     // 初始化日志
     init_log();
 
+    // 初始化Service
+    init_services().await.expect("init services failed");
+
     // 参数处理
     let matches = clap::App::new("Server Tan")
         .version(crate_version!())
-        .author("Caijh. <caijh@gmail.com>")
+        .author("caijunhui. <caijh@gmail.com>")
         .about("Message Hub...")
         .args_from_usage("-c, --config=[FILE] 'Sets a custom config file'")
         .get_matches();
@@ -136,12 +59,18 @@ async fn main() -> std::io::Result<()> {
     }
 
     info!("Listening on https://{}", config::CONFIG.listen);
-
-    HttpServer::new(|| {
+    let mut hbars = Handlebars::new();
+    hbars
+        .register_templates_directory(".html", "./static/")
+        .unwrap();
+    let hbars_ref = web::Data::new(hbars);
+    HttpServer::new(move || {
         App::new()
-            .route("/", web::get().to(wx_corp_receive))
-            .route("/", web::post().to(handle_wx_corp_receive))
-            .route("/send/{username}", web::post().to(handle_send))
+            .app_data(hbars_ref.clone())
+            .route("/", web::get().to(handler::do_get_wx_corp_receive))
+            .route("/", web::post().to(handler::do_post_wx_corp_receive))
+            .route("/send/{username}", web::post().to(handler::handle_send_message))
+            .route("/message/{id}", web::get().to(handler::handler_message_detail))
     })
         .bind(&config::CONFIG.listen)?
         .run()

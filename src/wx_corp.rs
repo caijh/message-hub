@@ -11,7 +11,6 @@ use block_modes::block_padding::Pkcs7;
 use block_modes::{BlockMode, Cbc};
 
 
-
 type AesCbc = Cbc<Aes256, Pkcs7>;
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -34,6 +33,12 @@ pub struct SendMessageResult {
     response_code: Option<String>,
 }
 
+impl SendMessageResult {
+    pub fn is_success(&self) -> bool {
+        self.errcode == 0
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct DecryptMessage {
     pub content: String,
@@ -41,21 +46,21 @@ pub struct DecryptMessage {
 }
 
 
-pub struct WxCorpInterface {
+pub struct WxCorpService {
     storage: super::storage::SingleKvStorage,
 }
 
 const STORE: &str = "wxcorp";
 
-impl Default for WxCorpInterface {
+impl Default for WxCorpService {
     fn default() -> Self {
-        WxCorpInterface::new()
+        WxCorpService::new()
     }
 }
 
-impl WxCorpInterface {
-    pub fn new() -> WxCorpInterface {
-        WxCorpInterface {
+impl WxCorpService {
+    pub fn new() -> WxCorpService {
+        WxCorpService {
             storage: super::storage::SingleKvStorage::new(&CONFIG.db_path, STORE),
         }
     }
@@ -159,15 +164,15 @@ pub fn decrypt(aes_key: &str, text: &str) -> DecryptMessage {
     let decrypted = cipher.decrypt_vec(&encrypted).unwrap();
     let content = &decrypted[16..];
     let length = u32::from_be_bytes(content[0..4].try_into().unwrap()) as usize;
-    let msg_content =String::from_utf8_lossy(&content[4..(4 + length)]).to_string();
-    let receive_id   = String::from_utf8_lossy(&content[(4 + length)..]).to_string();
+    let msg_content = String::from_utf8_lossy(&content[4..(4 + length)]).to_string();
+    let receive_id = String::from_utf8_lossy(&content[(4 + length)..]).to_string();
 
     DecryptMessage {
         content: msg_content,
-        from_receive_id: receive_id
+        from_receive_id: receive_id,
     }
 }
 
 lazy_static! {
-    pub static ref INTERFACE: WxCorpInterface = WxCorpInterface::default();
+    pub static ref INTERFACE: WxCorpService = WxCorpService::default();
 }
