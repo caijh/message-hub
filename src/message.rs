@@ -1,3 +1,4 @@
+use std::ops::Not;
 use rbatis::{crud, impl_select};
 use rbatis::rbdc::datetime::DateTime;
 use serde_derive::{Deserialize, Serialize};
@@ -43,7 +44,7 @@ impl_select!(Message{select_by_uuid(uuid:&str) -> Option => "`where uuid = #{uui
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct MessageReceiver {
     pub id: Option<i64>,
-    pub message_id: Option<i64>,
+    pub message_id: Option<u64>,
     pub user_id: Option<String>,
 }
 crud!(MessageReceiver {});
@@ -60,7 +61,7 @@ impl TextCardMessage {
             agentid: wx_corp_app_id,
             textcard: TextCard {
                 title: "设备通知".to_string(),
-                description: format!("通知内容:{}<br/>通知时间：{}<br/>", message.content.clone().unwrap(), chrono::Local::now().format("%Y-%m-%d %H:%M:%S")),
+                description: format!("<div class=\"normal\">通知内容:{}</div><div class=\"gray\">通知时间：{}</div>", message.content.clone().unwrap(), chrono::Local::now().format("%Y-%m-%d %H:%M:%S")),
                 url: format!("https://messagehub.junhuitsai.space/message/{}", message.uuid.clone().unwrap()),
                 btntxt: "查看详情".to_string(),
             },
@@ -81,10 +82,11 @@ pub async fn send_by_wx_corp(username: &str, msg: &str) -> String {
     };
     let rb = SERVICES.get::<DatabaseService>().dao();
     let mut tx = rb.acquire_begin().await.unwrap();
-    Message::insert(&tx, &message).await.unwrap();
+    let result = Message::insert(&tx, &message).await.unwrap();
+    let message_id = result.last_insert_id.as_u64().unwrap();
     let message_receiver = MessageReceiver {
         id: None,
-        message_id: message.id,
+        message_id: Some(message_id),
         user_id: Some(username.to_string()),
     };
     MessageReceiver::insert(&tx, &message_receiver).await.unwrap();
@@ -93,8 +95,8 @@ pub async fn send_by_wx_corp(username: &str, msg: &str) -> String {
 
     let json = serde_json::to_string(&msg).unwrap();
     let result = SERVICES.get::<WxCorpService>().send(&json);
-    if result.is_success() {
-        MessageReceiver::delete_by_column(&tx, "message_id", &message.id.unwrap()).await.unwrap();
+    if result.is_success().not() {
+        MessageReceiver::delete_by_column(&tx, "message_id", message_id).await.unwrap();
         Message::delete_by_column(&tx, "uuid", &message.uuid.unwrap()).await.unwrap();
     }
     tx.commit().await.unwrap();

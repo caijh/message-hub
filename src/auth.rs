@@ -38,7 +38,7 @@ pub fn check_signature(signature: &str, timestamp: &str, nonce: &str, content: &
     debug!("timestamp:{}", timestamp);
     debug!("nonce:{}", nonce);
     let hex = get_signature(timestamp, nonce, content);
-    debug!("Calculated signature:{}", hex);
+    debug!("Calculated signature: {}", hex);
     hex == signature
 }
 
