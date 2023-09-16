@@ -1,7 +1,8 @@
-use log::info;
 use rbatis::RBatis;
 use rbdc_mysql::driver::MysqlDriver;
+
 use crate::config::CONFIG;
+
 pub async fn init_rbatis(rbatis: &RBatis) -> Result<(), rbatis::Error> {
     let db_host = CONFIG.database_host.clone();
     let db_port: u16 = CONFIG.database_port;
