@@ -86,7 +86,7 @@ pub async fn send_by_wx_corp(username: &str, msg: &str) -> String {
     let message_id = result.last_insert_id.as_u64().unwrap();
     let message_receiver = MessageReceiver {
         id: None,
-        message_id: Some(message_id),
+        message_id: Some(message_id.clone()),
         user_id: Some(username.to_string()),
     };
     MessageReceiver::insert(&tx, &message_receiver).await.unwrap();
