@@ -1,5 +1,5 @@
 [package]
-name = "messagehub"
+name = "message-hub"
 version = "0.1.0"
 edition = "2021"
 
