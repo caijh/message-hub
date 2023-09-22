@@ -5,8 +5,8 @@ use clap::crate_version;
 use handlebars::Handlebars;
 use log::{debug, info};
 
-use messagehub::handler;
-use messagehub::services::init_services;
+use message_hub::handler;
+use message_hub::services::init_services;
 
 use crate::config::CONFIG_FILE;
 
