@@ -1,11 +1,11 @@
 use std::sync::Mutex;
 
-use config::ConfigError;
+use config::{ConfigError};
 use lazy_static::lazy_static;
 use serde_derive::Deserialize;
 
 #[derive(Debug, Deserialize, Clone)]
-pub struct Config {
+pub struct AppConfig {
     pub wxcorp_id: String,
     pub wxcorp_secret: String,
     pub wxcorp_app_id: String,
@@ -21,11 +21,11 @@ pub struct Config {
     pub database_type: String,
 }
 
-impl Config {
+impl AppConfig {
     pub fn new(path: &str) -> Result<Self, ConfigError> {
-        let mut settings = config::Config::default();
-        match settings.merge(config::File::with_name(path)) {
-            Ok(_) => settings.try_into(),
+        let builder = config::Config::builder().add_source(config::File::with_name(path));
+        match builder.build(){
+            Ok(config) => config.try_deserialize(),
             Err(err) => Err(err),
         }
     }
@@ -35,7 +35,7 @@ impl Config {
 // 全局配置对象
 lazy_static! {
     pub static ref CONFIG_FILE: Mutex<String> = Mutex::new("config.toml".to_string());
-    pub static ref CONFIG: Config = match Config::new(&CONFIG_FILE.lock().unwrap()) {
+    pub static ref CONFIG: AppConfig = match AppConfig::new(&CONFIG_FILE.lock().unwrap()) {
         Ok(cfg) => cfg,
         Err(err) => panic!("{:?}", err),
     };

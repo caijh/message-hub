@@ -1,4 +1,3 @@
-use reqwest::Error;
 use serde_derive::{Deserialize, Serialize};
 
 use crate::config::CONFIG;
@@ -43,21 +42,20 @@ impl UserService {
         }
     }
 
-    fn get_user_name_internal(&self, id: &str) -> Result<User, Error> {
+    async fn get_user_name_internal(&self, id: &str) -> Result<User, reqwest::Error> {
         let wx_corp_service = SERVICES.get::<WxCorpService>();
-        let token = wx_corp_service.get_access_token();
+        let token = wx_corp_service.get_access_token().await;
         let client = reqwest::Client::new();
-        let res: Result<User, Error> = client
+        let res:Result<User, reqwest::Error> = client
             .get("https://qyapi.weixin.qq.com/cgi-bin/user/get")
             .query(&[("access_token", token.access_token.as_str())])
             .query(&[("userid", id)])
-            .send()
-            .unwrap()
-            .json();
+            .send().await.unwrap()
+            .json().await;
         res
     }
 
-    pub fn get_user(&self, id: &str) -> Result<User, &str> {
+    pub async fn get_user(&self, id: &str) -> Result<User, &str> {
         let user = self.storage.get_single(id);
         match user {
             Some(user_string) => {
@@ -65,8 +63,7 @@ impl UserService {
                 Ok(_user)
             }
             None => {
-                let r = self.get_user_name_internal(id);
-                println!("user {:?}", r);
+                let r = self.get_user_name_internal(id).await;
                 match r {
                     Ok(u) => {
                         if u.errcode != 0 {

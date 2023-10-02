@@ -1,25 +1,26 @@
 use rkv::{Manager, Rkv, StoreOptions, Value};
 
 use std::sync::{Arc, RwLock};
+use rkv::backend::{SafeMode, SafeModeDatabase, SafeModeEnvironment};
 
 pub struct SingleKvStorage {
-    pub env: Arc<RwLock<Rkv>>,
-    pub single: rkv::store::single::SingleStore,
+    pub env: Arc<RwLock<Rkv<SafeModeEnvironment>>>,
+    pub single: rkv::store::single::SingleStore<SafeModeDatabase>,
 }
 
 impl SingleKvStorage {
     pub fn new(path: &str, db: &str) -> SingleKvStorage {
         let path = std::path::Path::new(path);
         std::fs::create_dir_all(path).unwrap();
-        let created_arc = Manager::singleton()
+        let created_arc = Manager::<SafeModeEnvironment>::singleton()
             .write()
             .unwrap()
-            .get_or_create(path, Rkv::new)
+            .get_or_create(path, Rkv::new::<SafeMode>)
             .unwrap();
-        let created_arc2 = Manager::singleton()
+        let created_arc2 = Manager::<SafeModeEnvironment>::singleton()
             .write()
             .unwrap()
-            .get_or_create(path, Rkv::new)
+            .get_or_create(path, Rkv::new::<SafeMode>)
             .unwrap();
         let k = created_arc2.read().unwrap();
         let store = k.open_single(db, StoreOptions::create()).unwrap();

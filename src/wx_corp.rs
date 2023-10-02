@@ -65,7 +65,7 @@ impl WxCorpService {
         }
     }
 
-    fn get_access_token_internal(&self) -> AccessToken {
+    async fn get_access_token_internal(&self) -> AccessToken {
         let config = CONFIG.clone();
         let corpid = config.wxcorp_id;
         let secret = config.wxcorp_secret;
@@ -74,10 +74,8 @@ impl WxCorpService {
             .get("https://qyapi.weixin.qq.com/cgi-bin/gettoken")
             .query(&[("corpid", &corpid)])
             .query(&[("corpsecret", &secret)])
-            .send()
-            .unwrap()
-            .json()
-            .unwrap();
+            .send().await.unwrap()
+            .json().await.unwrap();
         let expires = chrono::Utc::now() + chrono::Duration::seconds(res.expires_in);
         let token = res.access_token;
         AccessToken {
@@ -86,7 +84,7 @@ impl WxCorpService {
         }
     }
 
-    pub fn get_access_token(&self) -> AccessToken {
+    pub async fn get_access_token(&self) -> AccessToken {
         // 尝试从数据库获取access token
         let token = self.storage.get_single("access_token");
         match token {
@@ -95,34 +93,32 @@ impl WxCorpService {
                 let now = chrono::Utc::now();
                 // 过期重新获取
                 if access_token.expires <= now.timestamp() {
-                    self.update_access_token()
+                    self.update_access_token().await
                 } else {
                     access_token
                 }
             }
-            None => self.update_access_token(),
+            None => self.update_access_token().await,
         }
     }
 
-    fn update_access_token(&self) -> AccessToken {
-        let new_token = self.get_access_token_internal();
+    async fn update_access_token(&self) -> AccessToken {
+        let new_token = self.get_access_token_internal().await;
         let json_string = serde_json::to_string(&new_token).unwrap();
         self.storage
             .put_single("access_token", &rkv::Value::Json(&json_string));
         new_token
     }
 
-    pub fn send(&self, body: &str) -> SendMessageResult {
-        let access_token = self.get_access_token().access_token;
+    pub async fn send(&self, body: &str) -> SendMessageResult {
+        let access_token = self.get_access_token().await.access_token;
         let client = reqwest::Client::new();
         let res: SendMessageResult = client
             .post("https://qyapi.weixin.qq.com/cgi-bin/message/send")
             .query(&[("access_token", &access_token)])
             .body(body.to_string())
-            .send()
-            .unwrap()
-            .json()
-            .unwrap();
+            .send().await.unwrap()
+            .json().await.unwrap();
         res
     }
 }

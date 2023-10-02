@@ -94,7 +94,7 @@ pub async fn send_by_wx_corp(username: &str, msg: &str) -> String {
     let msg = TextCardMessage::new(username, &message);
 
     let json = serde_json::to_string(&msg).unwrap();
-    let result = SERVICES.get::<WxCorpService>().send(&json);
+    let result = SERVICES.get::<WxCorpService>().send(&json).await;
     if result.is_success().not() {
         MessageReceiver::delete_by_column(&tx, "message_id", message_id).await.unwrap();
         Message::delete_by_column(&tx, "uuid", &message.uuid.unwrap()).await.unwrap();

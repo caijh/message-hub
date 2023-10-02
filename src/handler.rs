@@ -63,7 +63,7 @@ pub async fn handle_send_message(user: Path<User>, query: web::Query<Signature>,
     debug!("msg:{}", message.content);
 
     let username = &user.username;
-    let user = SERVICES.get::<UserService>().get_user(username);
+    let user = SERVICES.get::<UserService>().get_user(username).await;
     match user {
         Ok(_) => {
             let response = send_by_wx_corp(username, content).await;

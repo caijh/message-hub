@@ -1,7 +1,7 @@
 use std::io::prelude::*;
 
 use actix_web::{App, HttpServer, web};
-use clap::crate_version;
+use clap::{arg, Command, crate_version};
 use handlebars::Handlebars;
 use log::{debug, info};
 
@@ -46,14 +46,16 @@ async fn main() -> std::io::Result<()> {
     init_services().await.expect("init services failed");
 
     // 参数处理
-    let matches = clap::App::new("Server Tan")
+    let matches = Command::new("Server Tan")
         .version(crate_version!())
         .author("caijunhui. <caijh@gmail.com>")
         .about("Message Hub...")
-        .args_from_usage("-c, --config=[FILE] 'Sets a custom config file'")
+        .args(&[
+            arg!(-c --config <FILE> "Sets a custom config file")
+        ])
         .get_matches();
 
-    if let Some(c) = matches.value_of("config") {
+    if let Some(c) = matches.get_one::<String>("config") {
         debug!("Value for config: {}", c);
         *CONFIG_FILE.lock().unwrap() = c.to_string();
     }
