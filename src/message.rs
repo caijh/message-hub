@@ -1,7 +1,7 @@
-use std::ops::Not;
-use rbatis::{crud, impl_select};
 use rbatis::rbdc::datetime::DateTime;
+use rbatis::{crud, impl_select};
 use serde_derive::{Deserialize, Serialize};
+use std::ops::Not;
 
 use crate::config::CONFIG;
 use crate::database::DatabaseService;
@@ -61,8 +61,8 @@ impl TextCardMessage {
             agentid: wx_corp_app_id,
             textcard: TextCard {
                 title: "设备通知".to_string(),
-                description: format!("<div class=\"normal\">通知内容:{}</div><div class=\"gray\">通知时间：{}</div>", message.content.clone().unwrap(), chrono::Local::now().format("%Y-%m-%d %H:%M:%S")),
-                url: format!("https://messagehub.junhuitsai.space/message/{}", message.uuid.clone().unwrap()),
+                description: format!("<div class=\"normal\">通知内容: {}</div><div class=\"gray\">通知时间：{}</div>", message.content.clone().unwrap(), chrono::Local::now().format("%Y-%m-%d %H:%M:%S")),
+                url: format!("https://message.junhuitsai.space/message/{}", message.uuid.clone().unwrap()),
                 btntxt: "查看详情".to_string(),
             },
             enable_id_trans: 0,
@@ -89,15 +89,21 @@ pub async fn send_by_wx_corp(username: &str, msg: &str) -> String {
         message_id: Some(message_id.clone()),
         user_id: Some(username.to_string()),
     };
-    MessageReceiver::insert(&tx, &message_receiver).await.unwrap();
+    MessageReceiver::insert(&tx, &message_receiver)
+        .await
+        .unwrap();
 
     let msg = TextCardMessage::new(username, &message);
 
     let json = serde_json::to_string(&msg).unwrap();
     let result = SERVICES.get::<WxCorpService>().send(&json).await;
     if result.is_success().not() {
-        MessageReceiver::delete_by_column(&tx, "message_id", message_id).await.unwrap();
-        Message::delete_by_column(&tx, "uuid", &message.uuid.unwrap()).await.unwrap();
+        MessageReceiver::delete_by_column(&tx, "message_id", message_id)
+            .await
+            .unwrap();
+        Message::delete_by_column(&tx, "uuid", &message.uuid.unwrap())
+            .await
+            .unwrap();
     }
     tx.commit().await.unwrap();
     tx.rollback().await.unwrap();
