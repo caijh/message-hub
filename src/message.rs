@@ -61,7 +61,7 @@ impl TextCardMessage {
             agentid: wx_corp_app_id,
             textcard: TextCard {
                 title: "设备通知".to_string(),
-                description: format!("<div class=\"normal\">通知内容: {}</div><div class=\"gray\">通知时间：{}</div>", message.content.clone().unwrap(), chrono::Local::now().format("%Y-%m-%d %H:%M:%S")),
+                description: format!("<div class=\"normal\">通知内容: </div><div class=\"normal\">{}</div><div class=\"gray\">通知时间：{}</div>", message.content.clone().unwrap(), chrono::Local::now().format("%Y-%m-%d %H:%M:%S")),
                 url: format!("https://message.junhuitsai.space/message/{}", message.uuid.clone().unwrap()),
                 btntxt: "查看详情".to_string(),
             },
