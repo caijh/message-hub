@@ -1,7 +1,9 @@
-use actix_web::{HttpResponse, Responder, web};
+use actix_web::{HttpResponse, post, Responder, web};
+use actix_web::dev::ServerHandle;
 use actix_web::web::{Json, Path};
 use handlebars::Handlebars;
 use log::debug;
+use parking_lot::Mutex;
 use serde_derive::{Deserialize, Serialize};
 
 use crate::{auth, message, wx_corp};
@@ -79,4 +81,30 @@ pub async fn handler_message_detail(hb: web::Data<Handlebars<'_>>, id: Path<Stri
     let message = message::get_message_detail(&id).await;
     let body = hb.render("message", &message).unwrap();
     HttpResponse::Ok().body(body)
+}
+
+
+#[post("/stop/{graceful}")]
+async fn stop(graceful: Path<bool>, stop_handle: web::Data<StopHandle>) -> HttpResponse {
+    stop_handle.stop(graceful.to_owned()).await;
+    HttpResponse::NoContent().finish()
+}
+
+#[derive(Default)]
+pub struct StopHandle {
+    inner: Mutex<Option<ServerHandle>>,
+}
+
+impl StopHandle {
+    /// Sets the server handle to stop.
+    pub fn register(&self, handle: ServerHandle) {
+        *self.inner.lock() = Some(handle);
+    }
+
+    /// Sends stop signal through contained server handle.
+    pub async fn stop(&self, graceful: bool) {
+        let _ = registration::deregister().await;
+        #[allow(clippy::let_underscore_future)]
+            let _ = self.inner.lock().as_ref().unwrap().stop(graceful);
+    }
 }

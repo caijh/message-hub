@@ -2,13 +2,14 @@ use std::io::prelude::*;
 
 use actix_web::{App, HttpServer, web};
 use clap::{arg, Command, crate_version};
+use configuration::Configuration;
 use handlebars::Handlebars;
 use log::{debug, info};
 
 use message_hub::handler;
+use message_hub::handler::StopHandle;
 use message_hub::services::init_services;
 
-use crate::config::CONFIG_FILE;
 
 mod config;
 mod storage;
@@ -57,16 +58,20 @@ async fn main() -> std::io::Result<()> {
 
     if let Some(c) = matches.get_one::<String>("config") {
         debug!("Value for config: {}", c);
-        *CONFIG_FILE.lock().unwrap() = c.to_string();
+        Configuration::load(c).await.expect("load config failed");
     }
 
-    info!("Listening on https://{}", config::CONFIG.listen);
+    let stop_handle = web::Data::new(StopHandle::default());
+
+    let config = Configuration::get_config().await;
+    let addr = config.get_string("listen").unwrap();
+    info!("Listening on https://{}", addr);
     let mut hbars = Handlebars::new();
     hbars
         .register_templates_directory(".html", "./static/")
         .unwrap();
     let hbars_ref = web::Data::new(hbars);
-    HttpServer::new(move || {
+    let server = HttpServer::new(move || {
         App::new()
             .app_data(hbars_ref.clone())
             .route("/", web::get().to(handler::do_get_wx_corp_receive))
@@ -74,7 +79,17 @@ async fn main() -> std::io::Result<()> {
             .route("/send/{username}", web::post().to(handler::handle_send_message))
             .route("/message/{id}", web::get().to(handler::handler_message_detail))
     })
-        .bind(&config::CONFIG.listen)?
-        .run()
-        .await
+        .bind(addr)?
+        .run();
+
+    // register the server handle with the stop handle
+    stop_handle.register(server.handle());
+
+    // Register with Consul
+    if let Err(err) = registration::register(&config).await {
+        eprintln!("Failed to register with Consul: {}", err);
+        // Shut down Actix Web server if Consul registration fails
+        stop_handle.stop(true).await;
+    }
+    server.await
 }
