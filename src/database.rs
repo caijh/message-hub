@@ -1,15 +1,15 @@
+use config::Config;
 use rbatis::RBatis;
 use rbdc_mysql::driver::MysqlDriver;
 
-use crate::config::CONFIG;
 
-pub async fn init_rbatis(rbatis: &RBatis) -> Result<(), rbatis::Error> {
-    let db_host = CONFIG.database_host.clone();
-    let db_port: u16 = CONFIG.database_port;
-    let db_user = CONFIG.database_user.clone();
-    let db_password = CONFIG.database_password.clone();
-    let db_name = CONFIG.database_name.clone();
-    let db_type = CONFIG.database_type.clone();
+pub async fn init_rbatis(rbatis: &RBatis, config: &Config) -> Result<(), rbatis::Error> {
+    let db_host = config.get_string("database_host").unwrap();
+    let db_port: i64 = config.get_int("database_port").unwrap();
+    let db_user = config.get_string("database_user").unwrap();
+    let db_password = config.get_string("database_password").unwrap();
+    let db_name = config.get_string("database_name").unwrap();
+    let db_type = config.get_string("database_type").unwrap();
     let db_url = db_type.to_string()
         + "://"
         + &db_user
@@ -34,9 +34,9 @@ pub struct DatabaseService {
 }
 
 impl DatabaseService {
-    pub async fn new() -> Self {
+    pub async fn new(config: &Config) -> Self {
         let rb = RBatis::new();
-        init_rbatis(&rb).await.expect("init database error");
+        init_rbatis(&rb, config).await.expect("init database error");
         DatabaseService { rb }
     }
 

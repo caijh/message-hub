@@ -1,6 +1,6 @@
+use config::Config;
 use serde_derive::{Deserialize, Serialize};
 
-use crate::config::CONFIG;
 use crate::services::SERVICES;
 use crate::wx_corp::WxCorpService;
 
@@ -36,9 +36,9 @@ pub struct UserService {
 const STORE: &str = "user";
 
 impl UserService {
-    pub fn new() -> UserService {
+    pub fn new(config: &Config) -> UserService {
         UserService {
-            storage: super::storage::SingleKvStorage::new(&CONFIG.db_path, STORE),
+            storage: super::storage::SingleKvStorage::new(config.get_string("db_path").unwrap().as_str(), STORE),
         }
     }
 

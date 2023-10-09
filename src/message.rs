@@ -3,7 +3,6 @@ use rbatis::{crud, impl_select};
 use serde_derive::{Deserialize, Serialize};
 use std::ops::Not;
 
-use crate::config::CONFIG;
 use crate::database::DatabaseService;
 use crate::services::SERVICES;
 use crate::wx_corp::WxCorpService;
@@ -50,15 +49,14 @@ pub struct MessageReceiver {
 crud!(MessageReceiver {});
 
 impl TextCardMessage {
-    pub fn new(user: &str, message: &Message) -> Self {
-        let wx_corp_app_id: String = CONFIG.wxcorp_app_id.clone();
+    pub fn new(app_id: &str,user: &str, message: &Message) -> Self {
         TextCardMessage {
             uuid: message.uuid.clone(),
             touser: Some(user.to_string()),
             toparty: None,
             totag: None,
             msgtype: "textcard".to_string(),
-            agentid: wx_corp_app_id,
+            agentid: app_id.to_string(),
             textcard: TextCard {
                 title: "设备通知".to_string(),
                 description: format!("<div class=\"normal\">通知内容: </div><div class=\"normal\">{}</div><div class=\"gray\">通知时间：{}</div>", message.content.clone().unwrap(), chrono::Local::now().format("%Y-%m-%d %H:%M:%S")),
@@ -72,7 +70,7 @@ impl TextCardMessage {
     }
 }
 
-pub async fn send_by_wx_corp(username: &str, msg: &str) -> String {
+pub async fn send_by_wx_corp(app_id: &str,username: &str, msg: &str) -> String {
     let message = Message {
         id: None,
         uuid: Some(uuid::Uuid::new_v4().to_string()),
@@ -93,7 +91,7 @@ pub async fn send_by_wx_corp(username: &str, msg: &str) -> String {
         .await
         .unwrap();
 
-    let msg = TextCardMessage::new(username, &message);
+    let msg = TextCardMessage::new(app_id,username, &message);
 
     let json = serde_json::to_string(&msg).unwrap();
     let result = SERVICES.get::<WxCorpService>().send(&json).await;

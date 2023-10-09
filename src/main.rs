@@ -1,6 +1,7 @@
 use std::io::prelude::*;
 
 use actix_web::{App, HttpServer, web};
+use actix_web::web::get;
 use clap::{arg, Command, crate_version};
 use configuration::Configuration;
 use handlebars::Handlebars;
@@ -11,7 +12,6 @@ use message_hub::handler::StopHandle;
 use message_hub::services::init_services;
 
 
-mod config;
 mod storage;
 
 
@@ -40,12 +40,6 @@ fn init_log() {
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    // 初始化日志
-    init_log();
-
-    // 初始化Service
-    init_services().await.expect("init services failed");
-
     // 参数处理
     let matches = Command::new("Server Tan")
         .version(crate_version!())
@@ -56,14 +50,25 @@ async fn main() -> std::io::Result<()> {
         ])
         .get_matches();
 
-    if let Some(c) = matches.get_one::<String>("config") {
+    let path = if let Some(c) = matches.get_one::<String>("config") {
         debug!("Value for config: {}", c);
-        Configuration::load(c).await.expect("load config failed");
-    }
+        c
+    } else {
+        "./config.toml"
+    };
+
+    Configuration::load(path).await.expect("load config failed");
+    #[allow(clippy::await_holding_lock)]
+    let config = Configuration::get_config().await;
+
+    // 初始化日志
+    init_log();
+
+    // 初始化Service
+    init_services(&config).await.expect("init services failed");
 
     let stop_handle = web::Data::new(StopHandle::default());
 
-    let config = Configuration::get_config().await;
     let addr = config.get_string("listen").unwrap();
     info!("Listening on https://{}", addr);
     let mut hbars = Handlebars::new();
@@ -78,6 +83,7 @@ async fn main() -> std::io::Result<()> {
             .route("/", web::post().to(handler::do_post_wx_corp_receive))
             .route("/send/{username}", web::post().to(handler::handle_send_message))
             .route("/message/{id}", web::get().to(handler::handler_message_detail))
+            .route("/health/check", get().to(handler::health_check))
     })
         .bind(addr)?
         .run();

@@ -1,6 +1,7 @@
-use actix_web::{HttpResponse, post, Responder, web};
+use actix_web::{get, HttpResponse, post, Responder, web};
 use actix_web::dev::ServerHandle;
 use actix_web::web::{Json, Path};
+use configuration::Configuration;
 use handlebars::Handlebars;
 use log::debug;
 use parking_lot::Mutex;
@@ -39,7 +40,10 @@ pub async fn do_get_wx_corp_receive(query: web::Query<WxCorpJoinValidate>) -> im
     let time_stamp = &query.timestamp;
     let nonce = &query.nonce;
     let echo_str = &query.echostr;
-    let result = wx_corp::verify_url(msg_signature, time_stamp, nonce, echo_str);
+    let config = Configuration::get_config().await;
+    let token = config.get_string("wxcorp_token").unwrap();
+    let aes_key = config.get_string("wxcorp_encoding_aes_key").unwrap();
+    let result = wx_corp::verify_url(msg_signature, token.as_str(),time_stamp, nonce, echo_str, aes_key.as_str());
     match result {
         Ok(r) => HttpResponse::Ok().body(r),
         Err(_) => HttpResponse::InternalServerError().finish()
@@ -57,7 +61,9 @@ pub async fn handle_send_message(user: Path<User>, query: web::Query<Signature>,
     let timestamp = &query.timestamp;
     let nonce = &query.nonce;
     let content = message.content.as_str();
-    if !auth::check_signature(signature, timestamp, nonce, content) {
+    let config = Configuration::get_config().await;
+    let token = config.get_string("wxcorp_token").unwrap();
+    if !auth::check_signature(signature, token.as_str(), timestamp, nonce, content) {
         debug!("auth failed!");
         return HttpResponse::Forbidden().finish();
     }
@@ -68,7 +74,8 @@ pub async fn handle_send_message(user: Path<User>, query: web::Query<Signature>,
     let user = SERVICES.get::<UserService>().get_user(username).await;
     match user {
         Ok(_) => {
-            let response = send_by_wx_corp(username, content).await;
+            let app_id = config.get_string("wxcorp_app_id").unwrap();
+            let response = send_by_wx_corp(app_id.as_str(),username, content).await;
             HttpResponse::Ok().body(response)
         }
         Err(_) => {
@@ -107,4 +114,8 @@ impl StopHandle {
         #[allow(clippy::let_underscore_future)]
             let _ = self.inner.lock().as_ref().unwrap().stop(graceful);
     }
+}
+
+pub async fn health_check() -> HttpResponse {
+    HttpResponse::Ok().body("OK")
 }

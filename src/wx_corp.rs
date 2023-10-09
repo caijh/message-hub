@@ -1,15 +1,14 @@
 use aes::Aes256;
-
-use serde_derive::{Deserialize, Serialize};
-use crate::config::CONFIG;
-use lazy_static::lazy_static;
-use sha1_smol::Sha1;
-use crate::auth::AccessToken;
 use base64::{alphabet, Engine};
 use base64::engine::GeneralPurpose;
-use block_modes::block_padding::Pkcs7;
 use block_modes::{BlockMode, Cbc};
+use block_modes::block_padding::Pkcs7;
+use config::Config;
+use configuration::Configuration;
+use serde_derive::{Deserialize, Serialize};
+use sha1_smol::Sha1;
 
+use crate::auth::AccessToken;
 
 type AesCbc = Cbc<Aes256, Pkcs7>;
 
@@ -52,23 +51,17 @@ pub struct WxCorpService {
 
 const STORE: &str = "wxcorp";
 
-impl Default for WxCorpService {
-    fn default() -> Self {
-        WxCorpService::new()
-    }
-}
-
 impl WxCorpService {
-    pub fn new() -> WxCorpService {
+    pub fn new(config: &Config) -> WxCorpService {
         WxCorpService {
-            storage: super::storage::SingleKvStorage::new(&CONFIG.db_path, STORE),
+            storage: super::storage::SingleKvStorage::new(config.get_string("db_path").unwrap().as_str(), STORE),
         }
     }
 
     async fn get_access_token_internal(&self) -> AccessToken {
-        let config = CONFIG.clone();
-        let corpid = config.wxcorp_id;
-        let secret = config.wxcorp_secret;
+        let config = Configuration::get_config().await;
+        let corpid = config.get_string("wxcorp_id").unwrap();
+        let secret = config.get_string("wxcorp_secret").unwrap();
         let client = reqwest::Client::new();
         let res: GetTokenResult = client
             .get("https://qyapi.weixin.qq.com/cgi-bin/gettoken")
@@ -125,14 +118,14 @@ impl WxCorpService {
 
 pub fn verify_url(
     msg_signature: &str,
+    token: &str,
     time_stamp: &str,
     nonce: &str,
     echo_str: &str,
+    aes_key: &str
 ) -> Result<String, String> {
-    let config = CONFIG.clone();
-    let token = config.wxcorp_token;
     // 校验签名
-    let mut args: Vec<&str> = vec![token.as_str(), time_stamp, nonce, echo_str];
+    let mut args: Vec<&str> = vec![token, time_stamp, nonce, echo_str];
     args.sort();
     let message = args.join("");
     let mut hasher = Sha1::default();
@@ -143,7 +136,6 @@ pub fn verify_url(
         return Err("AesException.ValidateSignatureError".to_string());
     }
 
-    let aes_key = &config.wxcorp_encoding_aes_key;
     let result = decrypt(aes_key, echo_str);
 
     String::from_utf8(result.content.into_bytes()).map_err(|_| "Utf8DecodingError".to_string())
@@ -169,6 +161,3 @@ pub fn decrypt(aes_key: &str, text: &str) -> DecryptMessage {
     }
 }
 
-lazy_static! {
-    pub static ref INTERFACE: WxCorpService = WxCorpService::default();
-}

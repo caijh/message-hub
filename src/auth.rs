@@ -1,11 +1,10 @@
 use base64::Engine;
 use base64::engine::general_purpose::STANDARD;
+
 use crypto::digest::Digest;
 use crypto::sha1::Sha1;
 use log::debug;
 use serde_derive::{Deserialize, Serialize};
-
-use crate::config::CONFIG;
 
 #[derive(Debug, Deserialize, Clone, Serialize)]
 pub struct AccessToken {
@@ -21,10 +20,9 @@ pub struct Signature {
 }
 
 
-pub fn get_signature(timestamp: &str, nonce: &str, content: &str) -> String {
-    let token: String = CONFIG.wxcorp_token.clone();
+pub fn get_signature(token: &str, timestamp: &str, nonce: &str, content: &str) -> String {
     let content = STANDARD.encode(content.as_bytes()); // get base64 string of content
-    let mut v = [token, timestamp.to_string(), nonce.to_string(), content];
+    let mut v = [token, timestamp, nonce, content.as_str()];
     v.sort();
 
     let mut hasher = Sha1::new();
@@ -33,11 +31,11 @@ pub fn get_signature(timestamp: &str, nonce: &str, content: &str) -> String {
     hasher.result_str()
 }
 
-pub fn check_signature(signature: &str, timestamp: &str, nonce: &str, content: &str) -> bool {
+pub fn check_signature(signature: &str, token: &str, timestamp: &str, nonce: &str, content: &str) -> bool {
     debug!("signature:{}", signature);
     debug!("timestamp:{}", timestamp);
     debug!("nonce:{}", nonce);
-    let hex = get_signature(timestamp, nonce, content);
+    let hex = get_signature(token, timestamp, nonce, content);
     debug!("Calculated signature: {}", hex);
     hex == signature
 }
@@ -51,9 +49,9 @@ mod tests {
         let timestamp = "1234567890";
         let nonce = "xyz";
         let content = "content";
-        let signature = get_signature(timestamp, nonce, content);
-        let result = check_signature(&signature, timestamp, nonce, content);
+        let token = "token";
+        let signature = get_signature(token, timestamp, nonce, content);
+        let result = check_signature(&signature, token, timestamp, nonce, content);
         assert_eq!(result, true);
     }
-
 }
