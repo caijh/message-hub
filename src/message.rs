@@ -49,7 +49,7 @@ pub struct MessageReceiver {
 crud!(MessageReceiver {});
 
 impl TextCardMessage {
-    pub fn new(app_id: &str,user: &str, message: &Message) -> Self {
+    pub fn new(app_id: &str, user: &str, message: &Message) -> Self {
         TextCardMessage {
             uuid: message.uuid.clone(),
             touser: Some(user.to_string()),
@@ -59,7 +59,11 @@ impl TextCardMessage {
             agentid: app_id.to_string(),
             textcard: TextCard {
                 title: "设备通知".to_string(),
-                description: format!("<div class=\"normal\">通知内容: </div><div class=\"normal\">{}</div><div class=\"gray\">通知时间：{}</div>", message.content.clone().unwrap(), chrono::Local::now().format("%Y-%m-%d %H:%M:%S")),
+                description: format!("<div class=\"normal\">通知内容: {}</div><div class=\"normal\">{}</div><div class=\"gray\">通知时间：{}</div>",
+                                     message.title.clone().unwrap_or_default(),
+                                     message.content.clone().unwrap(),
+                                     chrono::Local::now().format("%Y-%m-%d %H:%M:%S")
+                ),
                 url: format!("https://message.junhuitsai.space/message/{}", message.uuid.clone().unwrap()),
                 btntxt: "查看详情".to_string(),
             },
@@ -70,11 +74,11 @@ impl TextCardMessage {
     }
 }
 
-pub async fn send_by_wx_corp(app_id: &str,username: &str, msg: &str) -> String {
+pub async fn send_by_wx_corp(app_id: &str, username: &str, title: &str,msg: &str) -> String {
     let message = Message {
         id: None,
         uuid: Some(uuid::Uuid::new_v4().to_string()),
-        title: None,
+        title: Some(title.to_string()),
         content: Some(msg.to_string()),
         send_time: Some(DateTime::now()),
     };
@@ -84,14 +88,14 @@ pub async fn send_by_wx_corp(app_id: &str,username: &str, msg: &str) -> String {
     let message_id = result.last_insert_id.as_u64().unwrap();
     let message_receiver = MessageReceiver {
         id: None,
-        message_id: Some(message_id.clone()),
+        message_id: Some(message_id),
         user_id: Some(username.to_string()),
     };
     MessageReceiver::insert(&tx, &message_receiver)
         .await
         .unwrap();
 
-    let msg = TextCardMessage::new(app_id,username, &message);
+    let msg = TextCardMessage::new(app_id, username, &message);
 
     let json = serde_json::to_string(&msg).unwrap();
     let result = SERVICES.get::<WxCorpService>().send(&json).await;

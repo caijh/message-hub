@@ -1,4 +1,4 @@
-use actix_web::{get, HttpResponse, post, Responder, web};
+use actix_web::{get, HttpResponse, Responder, web};
 use actix_web::dev::ServerHandle;
 use actix_web::web::{Json, Path};
 use configuration::Configuration;
@@ -60,8 +60,9 @@ pub async fn handle_send_message(user: Path<User>, query: web::Query<Signature>,
     let signature = &query.signature;
     let timestamp = &query.timestamp;
     let nonce = &query.nonce;
+    let title = message.title.clone().unwrap_or_default();
     let content = message.content.as_str();
-    let config = Configuration::get_config().await;
+    let config = Configuration::get_config().await.clone();
     let token = config.get_string("wxcorp_token").unwrap();
     if !auth::check_signature(signature, token.as_str(), timestamp, nonce, content) {
         debug!("auth failed!");
@@ -75,7 +76,7 @@ pub async fn handle_send_message(user: Path<User>, query: web::Query<Signature>,
     match user {
         Ok(_) => {
             let app_id = config.get_string("wxcorp_app_id").unwrap();
-            let response = send_by_wx_corp(app_id.as_str(),username, content).await;
+            let response = send_by_wx_corp(app_id.as_str(),username, title.as_str(), content).await;
             HttpResponse::Ok().body(response)
         }
         Err(_) => {
@@ -91,7 +92,7 @@ pub async fn handler_message_detail(hb: web::Data<Handlebars<'_>>, id: Path<Stri
 }
 
 
-#[post("/stop/{graceful}")]
+#[get("/stop/{graceful}")]
 async fn stop(graceful: Path<bool>, stop_handle: web::Data<StopHandle>) -> HttpResponse {
     stop_handle.stop(graceful.to_owned()).await;
     HttpResponse::NoContent().finish()
@@ -112,7 +113,7 @@ impl StopHandle {
     pub async fn stop(&self, graceful: bool) {
         let _ = registration::deregister().await;
         #[allow(clippy::let_underscore_future)]
-            let _ = self.inner.lock().as_ref().unwrap().stop(graceful);
+        let _ = self.inner.lock().as_ref().unwrap().stop(graceful);
     }
 }
 

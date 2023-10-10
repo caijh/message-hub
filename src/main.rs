@@ -5,10 +5,10 @@ use actix_web::web::get;
 use clap::{arg, Command, crate_version};
 use configuration::Configuration;
 use handlebars::Handlebars;
-use log::{debug, info};
+use log::{debug, error, info};
 
 use message_hub::handler;
-use message_hub::handler::StopHandle;
+use message_hub::handler::{stop, StopHandle};
 use message_hub::services::init_services;
 
 
@@ -57,9 +57,9 @@ async fn main() -> std::io::Result<()> {
         "./config.toml"
     };
 
-    Configuration::load(path).await.expect("load config failed");
-    #[allow(clippy::await_holding_lock)]
-    let config = Configuration::get_config().await;
+    Configuration::load(path).await.expect("Load config failed");
+
+    let config = Configuration::get_config().await.clone();
 
     // 初始化日志
     init_log();
@@ -76,14 +76,18 @@ async fn main() -> std::io::Result<()> {
         .register_templates_directory(".html", "./static/")
         .unwrap();
     let hbars_ref = web::Data::new(hbars);
-    let server = HttpServer::new(move || {
-        App::new()
-            .app_data(hbars_ref.clone())
-            .route("/", web::get().to(handler::do_get_wx_corp_receive))
-            .route("/", web::post().to(handler::do_post_wx_corp_receive))
-            .route("/send/{username}", web::post().to(handler::handle_send_message))
-            .route("/message/{id}", web::get().to(handler::handler_message_detail))
-            .route("/health/check", get().to(handler::health_check))
+    let server = HttpServer::new({
+        let stop_handle = stop_handle.clone();
+        move || {
+            App::new()
+                .app_data(hbars_ref.clone()).app_data(stop_handle.clone())
+                .service(stop)
+                .route("/", web::get().to(handler::do_get_wx_corp_receive))
+                .route("/", web::post().to(handler::do_post_wx_corp_receive))
+                .route("/send/{username}", web::post().to(handler::handle_send_message))
+                .route("/message/{id}", web::get().to(handler::handler_message_detail))
+                .route("/health/check", get().to(handler::health_check))
+        }
     })
         .bind(addr)?
         .run();
@@ -93,9 +97,14 @@ async fn main() -> std::io::Result<()> {
 
     // Register with Consul
     if let Err(err) = registration::register(&config).await {
-        eprintln!("Failed to register with Consul: {}", err);
+        error!("Failed to register with Consul: {}", err);
         // Shut down Actix Web server if Consul registration fails
         stop_handle.stop(true).await;
     }
-    server.await
+
+    server.await?;
+
+    stop_handle.stop(true).await;
+
+    Ok(())
 }
