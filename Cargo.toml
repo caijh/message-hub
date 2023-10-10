@@ -5,6 +5,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+util = {git = "https://caijh@bitbucket.org/bytebinary/util_rs.git"}
 configuration= {git = "https://caijh@bitbucket.org/bytebinary/configuration_rs.git"}
 registration = {git = "https://caijh@bitbucket.org/bytebinary/registration.git"}
 futures = "0.3.28"
