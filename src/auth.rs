@@ -1,5 +1,3 @@
-use base64::Engine;
-use crypto::digest::Digest;
 use log::debug;
 use serde_derive::{Deserialize, Serialize};
 use util::signature::get_signature;

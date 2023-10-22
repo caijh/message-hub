@@ -1,26 +1,22 @@
 use config::Config;
+use configuration::Database;
 use rbatis::RBatis;
 use rbdc_mysql::driver::MysqlDriver;
 
 
 pub async fn init_rbatis(rbatis: &RBatis, config: &Config) -> Result<(), rbatis::Error> {
-    let db_host = config.get_string("database_host").unwrap();
-    let db_port: i64 = config.get_int("database_port").unwrap();
-    let db_user = config.get_string("database_user").unwrap();
-    let db_password = config.get_string("database_password").unwrap();
-    let db_name = config.get_string("database_name").unwrap();
-    let db_type = config.get_string("database_type").unwrap();
-    let db_url = db_type.to_string()
+    let db = config.get::<Database>("database").expect("database properties load fail.");
+    let db_url = db.kind
         + "://"
-        + &db_user
+        + &db.user
         + ":"
-        + &db_password
+        + &db.password
         + "@"
-        + &db_host
+        + &db.host
         + ":"
-        + &db_port.to_string()
+        + &db.port.to_string()
         + "/"
-        + &db_name;
+        + &db.name;
 
     rbatis.init(MysqlDriver {}, &db_url).unwrap();
 
