@@ -6,17 +6,7 @@ use rbdc_mysql::driver::MysqlDriver;
 
 pub async fn init_rbatis(rbatis: &RBatis, config: &Config) -> Result<(), rbatis::Error> {
     let db = config.get::<Database>("database").expect("database properties load fail.");
-    let db_url = db.kind
-        + "://"
-        + &db.user
-        + ":"
-        + &db.password
-        + "@"
-        + &db.host
-        + ":"
-        + &db.port.to_string()
-        + "/"
-        + &db.name;
+    let db_url = db.to_string();
 
     rbatis.init(MysqlDriver {}, &db_url).unwrap();
 
