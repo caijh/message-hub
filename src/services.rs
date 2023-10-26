@@ -2,8 +2,8 @@ use std::error::Error;
 use config::Config;
 
 use state::TypeMap;
+use database::DatabaseService;
 
-use crate::database::DatabaseService;
 use crate::user::UserService;
 use crate::wx_corp::WxCorpService;
 

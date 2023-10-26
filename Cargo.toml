@@ -8,6 +8,7 @@ edition = "2021"
 util = {git = "https://caijh@bitbucket.org/bytebinary/util_rs.git"}
 configuration= {git = "https://caijh@bitbucket.org/bytebinary/configuration_rs.git"}
 registration = {git = "https://caijh@bitbucket.org/bytebinary/registration_rs.git"}
+database = {git = "https://caijh@bitbucket.org/bytebinary/database_rs.git"}
 futures = "0.3.28"
 actix-web = "4.4.0"
 chrono = "0.4"
