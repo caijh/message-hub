@@ -5,38 +5,15 @@ use actix_web::web::get;
 use clap::{arg, Command, crate_version};
 use configuration::Configuration;
 use handlebars::Handlebars;
-use log::{debug, error, info};
+use logger::{Logger, LoggerConfig};
+use tracing::{error, info};
 
 use message_hub::handler;
 use message_hub::handler::{stop, StopHandle};
 use message_hub::services::init_services;
 
-
 mod storage;
 
-
-// 初始化日志，自定义了日志格式
-fn init_log() {
-    use chrono::Local;
-
-    let env = env_logger::Env::default().filter_or(env_logger::DEFAULT_FILTER_ENV, "debug");
-    env_logger::Builder::from_env(env)
-        .format(|buf, record| {
-            writeln!(
-                buf,
-                "{} {} [{}:{}:{}] {}",
-                Local::now().format("%Y-%m-%d %H:%M:%S"),
-                record.level(),
-                record.module_path().unwrap_or("<unnamed>"),
-                record.file().unwrap_or(""),
-                record.line().unwrap_or(0),
-                &record.args()
-            )
-        })
-        .init();
-
-    info!("env_logger initialized.");
-}
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -51,7 +28,6 @@ async fn main() -> std::io::Result<()> {
         .get_matches();
 
     let path = if let Some(c) = matches.get_one::<String>("config") {
-        debug!("Value for config: {}", c);
         c
     } else {
         "./config.toml"
@@ -61,8 +37,13 @@ async fn main() -> std::io::Result<()> {
 
     let config = Configuration::get_config().await.clone();
 
-    // 初始化日志
-    init_log();
+    let mut logger = Logger::new(&LoggerConfig {
+        enabled: config.get_bool("logger.enabled").unwrap_or_default(),
+        level: config.get_string("logger.level").unwrap_or("info".to_string()),
+        file: config.get_string("application.name").unwrap_or("info".to_string()) + ".log",
+        log_dir: "./logs".to_string(),
+    });
+    logger.init();
 
     // 初始化Service
     init_services(&config).await.expect("init services failed");

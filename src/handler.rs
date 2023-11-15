@@ -3,9 +3,9 @@ use actix_web::dev::ServerHandle;
 use actix_web::web::{Json, Path};
 use configuration::Configuration;
 use handlebars::Handlebars;
-use log::debug;
 use parking_lot::Mutex;
 use serde_derive::{Deserialize, Serialize};
+use tracing::debug;
 
 use crate::{auth, message, wx_corp};
 use crate::auth::Signature;
@@ -18,7 +18,8 @@ pub struct WxCorpJoinValidate {
     msg_signature: String,
     timestamp: String,
     nonce: String,
-    echostr: String,
+    #[serde(rename = "echostr")]
+    echo_str: String,
 }
 
 #[derive(Deserialize, Debug)]
@@ -39,7 +40,7 @@ pub async fn do_get_wx_corp_receive(query: web::Query<WxCorpJoinValidate>) -> im
     let msg_signature = &query.msg_signature;
     let time_stamp = &query.timestamp;
     let nonce = &query.nonce;
-    let echo_str = &query.echostr;
+    let echo_str = &query.echo_str;
     let config = Configuration::get_config().await;
     let token = config.get_string("wxcorp_token").unwrap();
     let aes_key = config.get_string("wxcorp_encoding_aes_key").unwrap();

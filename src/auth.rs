@@ -1,5 +1,5 @@
-use log::debug;
 use serde_derive::{Deserialize, Serialize};
+use tracing::debug;
 use util::signature::get_signature;
 
 #[derive(Debug, Deserialize, Clone, Serialize)]
