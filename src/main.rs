@@ -37,7 +37,7 @@ async fn main() -> std::io::Result<()> {
 
     let config = Configuration::get_config().await.clone();
 
-    let mut logger = Logger::new(&LoggerConfig {
+    let mut logger: Logger = Logger::new(&LoggerConfig {
         enabled: config.get_bool("logger.enabled").unwrap_or_default(),
         level: config.get_string("logger.level").unwrap_or("info".to_string()),
         file: config.get_string("application.name").unwrap_or("info".to_string()) + ".log",
