@@ -6,6 +6,7 @@ edition = "2021"
 
 [dependencies]
 util = {git = "https://caijh@bitbucket.org/bytebinary/util_rs.git"}
+logger = {git = "https://caijh@bitbucket.org/bytebinary/logger_rs.git"}
 configuration= {git = "https://caijh@bitbucket.org/bytebinary/configuration_rs.git"}
 registration = {git = "https://caijh@bitbucket.org/bytebinary/registration_rs.git"}
 database = {git = "https://caijh@bitbucket.org/bytebinary/database_rs.git"}
@@ -17,7 +18,7 @@ rkv = "0.18.4"
 config = "0.13.3"
 clap = { version = "4.4.6", features = ["derive", "cargo"] }
 reqwest = { version = "0.11.20", features = ["json"] }
-quick-xml = "0.30.0"
+quick-xml = "0.31.0"
 uuid = { version = "1.4.1", features = ["v4"] }
 sha1_smol = "1.0.0"
 base64 = "0.21.4"
@@ -34,6 +35,6 @@ serde_derive = "1.0.188"
 serde_json = "1.0.107"
 env_logger = "0.10.0"
 lazy_static = "1.4.0"
-log = "0.4.20"
 url = "2.4.1"
 parking_lot = "0.12.1"
+tracing = "0.1.40"
