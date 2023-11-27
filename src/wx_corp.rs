@@ -1,8 +1,9 @@
 use aes::Aes256;
+use aes::cipher::block_padding::Pkcs7;
 use base64::{alphabet, Engine};
 use base64::engine::GeneralPurpose;
-use block_modes::{BlockMode, Cbc};
-use block_modes::block_padding::Pkcs7;
+use cbc::cipher::{BlockDecryptMut, KeyIvInit};
+use cbc::Decryptor;
 use config::Config;
 use configuration::Configuration;
 use serde_derive::{Deserialize, Serialize};
@@ -10,7 +11,7 @@ use sha1_smol::Sha1;
 
 use crate::auth::AccessToken;
 
-type AesCbc = Cbc<Aes256, Pkcs7>;
+type AesCbcDec = Decryptor<Aes256>;
 
 #[derive(Debug, Serialize, Deserialize)]
 struct GetTokenResult {
@@ -122,7 +123,7 @@ pub fn verify_url(
     time_stamp: &str,
     nonce: &str,
     echo_str: &str,
-    aes_key: &str
+    aes_key: &str,
 ) -> Result<String, String> {
     // 校验签名
     let mut args: Vec<&str> = vec![token, time_stamp, nonce, echo_str];
@@ -142,14 +143,19 @@ pub fn verify_url(
 }
 
 pub fn decrypt(aes_key: &str, text: &str) -> DecryptMessage {
-    let engine = GeneralPurpose::new(&alphabet::STANDARD, base64::engine::general_purpose::PAD);
-    let encrypted = engine.decode(text).unwrap();
-
+    // decode key from base64 aes_key and create cipher.
     let engine = GeneralPurpose::new(&alphabet::STANDARD, base64::engine::general_purpose::NO_PAD);
     let aes_key_bin = engine.decode(aes_key).unwrap();
     let iv = &aes_key_bin[..16];
-    let cipher = AesCbc::new_from_slices(aes_key_bin.as_slice(), iv).unwrap();
-    let decrypted = cipher.decrypt_vec(&encrypted).unwrap();
+    let cipher = AesCbcDec::new_from_slices(aes_key_bin.as_slice(), iv).unwrap();
+
+    // decode from base64 text.
+    let engine = GeneralPurpose::new(&alphabet::STANDARD, base64::engine::general_purpose::PAD);
+    let encrypted = engine.decode(text).unwrap();
+
+    // use cipher to decrypt.
+    let decrypted = cipher.decrypt_padded_vec_mut::<Pkcs7>(&encrypted).unwrap();
+
     let content = &decrypted[16..];
     let length = u32::from_be_bytes(content[0..4].try_into().unwrap()) as usize;
     let msg_content = String::from_utf8_lossy(&content[4..(4 + length)]).to_string();

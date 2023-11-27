@@ -80,7 +80,8 @@ pub async fn handle_send_message(user: Path<User>, query: web::Query<Signature>,
             let response = send_by_wx_corp(app_id.as_str(),username, title.as_str(), content).await;
             HttpResponse::Ok().body(response)
         }
-        Err(_) => {
+        Err(e) => {
+            debug!("Get user info error, {:?}", e);
             HttpResponse::Forbidden().finish()
         }
     }

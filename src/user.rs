@@ -1,3 +1,4 @@
+use std::error::Error;
 use config::Config;
 use serde_derive::{Deserialize, Serialize};
 
@@ -46,7 +47,7 @@ impl UserService {
         let wx_corp_service = SERVICES.get::<WxCorpService>();
         let token = wx_corp_service.get_access_token().await;
         let client = reqwest::Client::new();
-        let res:Result<User, reqwest::Error> = client
+        let res: Result<User, reqwest::Error> = client
             .get("https://qyapi.weixin.qq.com/cgi-bin/user/get")
             .query(&[("access_token", token.access_token.as_str())])
             .query(&[("userid", id)])
@@ -55,7 +56,7 @@ impl UserService {
         res
     }
 
-    pub async fn get_user(&self, id: &str) -> Result<User, &str> {
+    pub async fn get_user(&self, id: &str) -> Result<User, Box<dyn Error>> {
         let user = self.storage.get_single(id);
         match user {
             Some(user_string) => {
@@ -67,12 +68,12 @@ impl UserService {
                 match r {
                     Ok(u) => {
                         if u.errcode != 0 {
-                            return Err("未找到用户");
+                            return Err(u.errmsg.into());
                         }
                         self.storage.put_single(id, &rkv::Value::Json(&serde_json::to_string(&u).unwrap()));
                         Ok(u)
                     }
-                    Err(_) => Err("未找到用户")
+                    Err(e) => Err(e.into())
                 }
             }
         }

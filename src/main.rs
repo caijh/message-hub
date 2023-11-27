@@ -1,5 +1,3 @@
-use std::io::prelude::*;
-
 use actix_web::{App, HttpServer, web};
 use actix_web::web::get;
 use clap::{arg, Command, crate_version};
@@ -7,7 +5,6 @@ use configuration::Configuration;
 use handlebars::Handlebars;
 use logger::{Logger, LoggerConfig};
 use tracing::{error, info};
-use tracing::log::__private_api::log;
 
 use message_hub::handler;
 use message_hub::handler::{stop, StopHandle};
