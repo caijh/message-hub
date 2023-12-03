@@ -10,7 +10,6 @@ use message_hub::handler;
 use message_hub::handler::{stop, StopHandle};
 use message_hub::services::init_services;
 
-mod storage;
 
 
 #[actix_web::main]

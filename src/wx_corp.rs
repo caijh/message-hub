@@ -1,11 +1,14 @@
+use std::error::Error;
+
 use aes::Aes256;
 use aes::cipher::block_padding::Pkcs7;
 use base64::{alphabet, Engine};
 use base64::engine::GeneralPurpose;
 use cbc::cipher::{BlockDecryptMut, KeyIvInit};
 use cbc::Decryptor;
-use config::Config;
 use configuration::Configuration;
+use redis::Commands;
+use redis_util::Redis;
 use serde_derive::{Deserialize, Serialize};
 use sha1_smol::Sha1;
 
@@ -23,14 +26,14 @@ struct GetTokenResult {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct SendMessageResult {
-    errcode: i32,
-    errmsg: String,
-    invaliduser: Option<String>,
-    invalidparty: Option<String>,
-    invalidtag: Option<String>,
-    unlicenseduser: Option<String>,
-    msgid: Option<String>,
-    response_code: Option<String>,
+    pub errcode: i32,
+    pub errmsg: String,
+    pub invaliduser: Option<String>,
+    pub invalidparty: Option<String>,
+    pub invalidtag: Option<String>,
+    pub unlicenseduser: Option<String>,
+    pub msgid: Option<String>,
+    pub response_code: Option<String>,
 }
 
 impl SendMessageResult {
@@ -45,20 +48,11 @@ pub struct DecryptMessage {
     pub from_receive_id: String,
 }
 
+#[derive(Default)]
+pub struct WxCorpService {}
 
-pub struct WxCorpService {
-    storage: super::storage::SingleKvStorage,
-}
-
-const STORE: &str = "wxcorp";
 
 impl WxCorpService {
-    pub fn new(config: &Config) -> WxCorpService {
-        WxCorpService {
-            storage: super::storage::SingleKvStorage::new(config.get_string("db_path").unwrap().as_str(), STORE),
-        }
-    }
-
     async fn get_access_token_internal(&self) -> AccessToken {
         let config = Configuration::get_config().await;
         let corpid = config.get_string("wxcorp_id").unwrap();
@@ -78,42 +72,56 @@ impl WxCorpService {
         }
     }
 
-    pub async fn get_access_token(&self) -> AccessToken {
+    pub async fn get_access_token(&self) -> Result<AccessToken, Box<dyn Error>> {
         // 尝试从数据库获取access token
-        let token = self.storage.get_single("access_token");
+        let client = Redis::get_redis_client();
+        let mut con = client.get_connection()?;
+        let key = "App:MessageHub:AccessToken:WxCorp";
+        let token = con.get::<&str, Option<String>>(key)?;
         match token {
-            Some(token_string) => {
-                let access_token: AccessToken = serde_json::from_str(&token_string).unwrap();
+            None => {
+                let access_token = self.update_access_token().await;
+                Ok(access_token)
+            }
+            Some(token) => {
+                let access_token: AccessToken = serde_json::from_str(&token).unwrap();
                 let now = chrono::Utc::now();
                 // 过期重新获取
-                if access_token.expires <= now.timestamp() {
+                let access_token = if access_token.expires <= now.timestamp() {
                     self.update_access_token().await
                 } else {
                     access_token
-                }
+                };
+                Ok(access_token)
             }
-            None => self.update_access_token().await,
         }
     }
 
     async fn update_access_token(&self) -> AccessToken {
         let new_token = self.get_access_token_internal().await;
         let json_string = serde_json::to_string(&new_token).unwrap();
-        self.storage
-            .put_single("access_token", &rkv::Value::Json(&json_string));
+        let client = Redis::get_redis_client();
+        let mut con = client.get_connection().expect("");
+        let key = "App:MessageHub:AccessToken:WxCorp";
+        con.set_ex::<&str, String, String>(key, json_string, 60 * 60 * 24).expect("Fail to update access token");
         new_token
     }
 
-    pub async fn send(&self, body: &str) -> SendMessageResult {
-        let access_token = self.get_access_token().await.access_token;
+    pub async fn send(&self, body: &str) -> Result<SendMessageResult, Box<dyn Error>> {
+        let access_token = self.get_access_token().await?.access_token;
         let client = reqwest::Client::new();
-        let res: SendMessageResult = client
+        let result = client
             .post("https://qyapi.weixin.qq.com/cgi-bin/message/send")
             .query(&[("access_token", &access_token)])
             .body(body.to_string())
-            .send().await.unwrap()
-            .json().await.unwrap();
-        res
+            .send().await;
+        match result {
+            Ok(resp) => {
+                let json: SendMessageResult = resp.json().await.unwrap();
+                Ok(json)
+            }
+            Err(e) => Err(e.into())
+        }
     }
 }
 
@@ -132,7 +140,7 @@ pub fn verify_url(
     let mut hasher = Sha1::default();
     hasher.update(message.as_bytes());
     let signature = hasher.digest().to_string();
-    println!("Calculated signature: {}", signature);
+    tracing::info!("Calculated signature: {}", signature);
     if signature != msg_signature {
         return Err("AesException.ValidateSignatureError".to_string());
     }

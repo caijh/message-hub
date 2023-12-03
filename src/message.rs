@@ -1,11 +1,12 @@
-use rbatis::rbdc::datetime::DateTime;
-use rbatis::{crud, impl_select};
-use serde_derive::{Deserialize, Serialize};
 use std::ops::Not;
+
 use database::DatabaseService;
+use rbatis::{crud, impl_select};
+use rbatis::rbdc::datetime::DateTime;
+use serde_derive::{Deserialize, Serialize};
 
 use crate::services::SERVICES;
-use crate::wx_corp::WxCorpService;
+use crate::wx_corp::{SendMessageResult, WxCorpService};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct TextCardMessage {
@@ -74,7 +75,7 @@ impl TextCardMessage {
     }
 }
 
-pub async fn send_by_wx_corp(app_id: &str, username: &str, title: &str,msg: &str) -> String {
+pub async fn send_by_wx_corp(app_id: &str, username: &str, title: &str, msg: &str) -> String {
     let message = Message {
         id: None,
         uuid: Some(uuid::Uuid::new_v4().to_string()),
@@ -99,21 +100,45 @@ pub async fn send_by_wx_corp(app_id: &str, username: &str, title: &str,msg: &str
 
     let json = serde_json::to_string(&msg).unwrap();
     let result = SERVICES.get::<WxCorpService>().send(&json).await;
-    if result.is_success().not() {
-        MessageReceiver::delete_by_column(&tx, "message_id", message_id)
-            .await
-            .unwrap();
-        Message::delete_by_column(&tx, "uuid", &message.uuid.unwrap())
-            .await
-            .unwrap();
+
+    let mut response = SendMessageResult {
+        errcode: -1,
+        errmsg: "消息发送失败".to_string(),
+        invaliduser: None,
+        invalidparty: None,
+        invalidtag: None,
+        unlicenseduser: None,
+        msgid: None,
+        response_code: None,
+    };
+    match result {
+        Ok(result) => {
+            if result.is_success().not() {
+                MessageReceiver::delete_by_column(&tx, "message_id", message_id)
+                    .await
+                    .unwrap();
+                Message::delete_by_column(&tx, "uuid", &message.uuid.unwrap())
+                    .await
+                    .unwrap();
+            }
+            response = result;
+        }
+        Err(_) => {
+            MessageReceiver::delete_by_column(&tx, "message_id", message_id)
+                .await
+                .unwrap();
+            Message::delete_by_column(&tx, "uuid", &message.uuid.unwrap())
+                .await
+                .unwrap();
+        }
     }
     tx.commit().await.unwrap();
     tx.rollback().await.unwrap();
-    serde_json::to_string(&result).unwrap()
+
+    serde_json::to_string(&response).unwrap()
 }
 
 pub async fn get_message_detail(uuid: &str) -> Option<Message> {
     let rb = SERVICES.get::<DatabaseService>().dao();
-    let message = Message::select_by_uuid(&rb, uuid).await.unwrap();
-    message
+    Message::select_by_uuid(&rb, uuid).await.unwrap()
 }

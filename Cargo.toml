@@ -10,6 +10,7 @@ logger = { git = "https://caijh@bitbucket.org/bytebinary/logger_rs.git" }
 configuration = { git = "https://caijh@bitbucket.org/bytebinary/configuration_rs.git" }
 registration = { git = "https://caijh@bitbucket.org/bytebinary/registration_rs.git" }
 database = { git = "https://caijh@bitbucket.org/bytebinary/database_rs.git" }
+redis_util = { git = "https://caijh@bitbucket.org/bytebinary/redis-util-rs.git" }
 futures = "0.3.29"
 actix-web = "4.4.0"
 chrono = "0.4"
@@ -38,3 +39,4 @@ url = "2.5.0"
 parking_lot = "0.12.1"
 tracing = "0.1.40"
 cbc = { version = "0.1.2", features = ["alloc"] }
+redis = "0.23.3"

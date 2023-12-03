@@ -1,5 +1,7 @@
 use std::error::Error;
-use config::Config;
+
+use redis::Commands;
+use redis_util::Redis;
 use serde_derive::{Deserialize, Serialize};
 
 use crate::services::SERVICES;
@@ -30,22 +32,13 @@ pub struct User {
     pub main_department: Option<String>,
 }
 
-pub struct UserService {
-    storage: super::storage::SingleKvStorage,
-}
-
-const STORE: &str = "user";
+#[derive(Default)]
+pub struct UserService {}
 
 impl UserService {
-    pub fn new(config: &Config) -> UserService {
-        UserService {
-            storage: super::storage::SingleKvStorage::new(config.get_string("db_path").unwrap().as_str(), STORE),
-        }
-    }
-
-    async fn get_user_name_internal(&self, id: &str) -> Result<User, reqwest::Error> {
+    async fn get_user_name_internal(&self, id: &str) -> Result<User, Box<dyn Error>> {
         let wx_corp_service = SERVICES.get::<WxCorpService>();
-        let token = wx_corp_service.get_access_token().await;
+        let token = wx_corp_service.get_access_token().await?;
         let client = reqwest::Client::new();
         let res: Result<User, reqwest::Error> = client
             .get("https://qyapi.weixin.qq.com/cgi-bin/user/get")
@@ -53,28 +46,31 @@ impl UserService {
             .query(&[("userid", id)])
             .send().await.unwrap()
             .json().await;
-        res
+        match res {
+            Ok(res) => {
+                Ok(res)
+            }
+            Err(e) => Err(e.into())
+        }
     }
 
     pub async fn get_user(&self, id: &str) -> Result<User, Box<dyn Error>> {
-        let user = self.storage.get_single(id);
+        let client = Redis::get_redis_client();
+        let mut con = client.get_connection()?;
+        let key = "App:Message:U:".to_string() + id;
+        let user = con.get::<&str, Option<String>>(&key)?;
         match user {
-            Some(user_string) => {
-                let _user: User = serde_json::from_str(&user_string).unwrap();
-                Ok(_user)
-            }
             None => {
-                let r = self.get_user_name_internal(id).await;
-                match r {
-                    Ok(u) => {
-                        if u.errcode != 0 {
-                            return Err(u.errmsg.into());
-                        }
-                        self.storage.put_single(id, &rkv::Value::Json(&serde_json::to_string(&u).unwrap()));
-                        Ok(u)
-                    }
-                    Err(e) => Err(e.into())
+                let u = self.get_user_name_internal(id).await?;
+                if u.errcode != 0 {
+                    return Err(u.errmsg.into());
                 }
+                con.set_ex::<&str, String, String>(&key, serde_json::to_string(&u).unwrap(), 1800)?;
+                Ok(u)
+            }
+            Some(user) => {
+                let _user: User = serde_json::from_str(&user).unwrap();
+                Ok(_user)
             }
         }
     }

@@ -1,0 +1,288 @@
+2023-11-27T14:14:31.760004Z  INFO message_hub: Listening on https://0.0.0.0:8082
+2023-11-27T14:14:31.784056Z  INFO actix_server::builder: starting 12 workers
+2023-11-27T14:14:31.784978Z DEBUG consulrs::client: Not using a TLS client certificate
+2023-11-27T14:14:31.785109Z DEBUG consulrs::client: Not using a TLS client key
+2023-11-27T14:14:31.785258Z  INFO consulrs::client: Checking TLS verification using $CONSUL_HTTP_SSL_VERIFY
+2023-11-27T14:14:31.785991Z DEBUG new: consulrs::client: Using API version 1
+2023-11-27T14:14:31.787260Z  INFO register{name="message-hub"}: consulrs::api: Executing agent/service/register and expecting no response
+2023-11-27T14:14:31.787489Z DEBUG register{name="message-hub"}:exec: rustify::endpoint: Executing endpoint
+2023-11-27T14:14:31.787994Z DEBUG register{name="message-hub"}:exec:request{base="http://127.0.0.1:8500"}:build_request{base="http://127.0.0.1:8500" path="agent/service/register" method=PUT}: rustify::http: Building endpoint request
+2023-11-27T14:14:31.788511Z DEBUG register{name="message-hub"}:exec:request{base="http://127.0.0.1:8500"}:request: consulrs::api: Middleware: prepending v1 version to URL
+2023-11-27T14:14:31.788754Z DEBUG register{name="message-hub"}:exec:request{base="http://127.0.0.1:8500"}:request: consulrs::api: Middleware: final URL is http://127.0.0.1:8500/v1/agent/service/register
+2023-11-27T14:14:31.788906Z DEBUG register{name="message-hub"}:exec:request{base="http://127.0.0.1:8500"}:request: consulrs::api: Middleware: adding ACL token to header
+2023-11-27T14:14:31.789235Z DEBUG register{name="message-hub"}:exec:execute: rustify::client: Client sending PUT request to http://127.0.0.1:8500/v1/agent/service/register with 198 bytes of data
+2023-11-27T14:14:31.790513Z DEBUG register{name="message-hub"}:exec:execute:send: hyper::client::connect::http: connecting to 127.0.0.1:8500
+2023-11-27T14:14:31.791587Z DEBUG register{name="message-hub"}:exec:execute:send: hyper::client::connect::http: connected to 127.0.0.1:8500
+2023-11-27T14:14:31.792892Z DEBUG hyper::proto::h1::io: flushed 315 bytes
+2023-11-27T14:14:31.796612Z DEBUG hyper::proto::h1::io: parsed 4 headers
+2023-11-27T14:14:31.796770Z DEBUG hyper::proto::h1::conn: incoming body is empty
+2023-11-27T14:14:31.797302Z DEBUG register{name="message-hub"}:exec:execute:send: hyper::client::pool: pooling idle connection for ("http", 127.0.0.1:8500)
+2023-11-27T14:14:31.797590Z DEBUG register{name="message-hub"}:exec:execute: rustify::client: Client received 200 response with 0 bytes of body data
+2023-11-27T14:14:31.798033Z  INFO actix_server::server: Actix runtime found; starting in Actix runtime
+2023-11-27T14:15:56.377616Z DEBUG message_hub::handler: POST /send/caijh
+2023-11-27T14:15:56.377922Z DEBUG message_hub::auth: signature:1aa8cad581598371e5e48b7680f56b6576844838
+2023-11-27T14:15:56.378276Z DEBUG message_hub::auth: timestamp:1234567890
+2023-11-27T14:15:56.378440Z DEBUG message_hub::auth: nonce:xyz
+2023-11-27T14:15:56.378773Z DEBUG message_hub::auth: Calculated signature: 1aa8cad581598371e5e48b7680f56b6576844838
+2023-11-27T14:15:56.378942Z DEBUG message_hub::handler: auth pass!
+2023-11-27T14:15:56.379114Z DEBUG message_hub::handler: msg:hello
+2023-11-27T14:15:56.380107Z DEBUG hyper::client::connect::dns: resolving host="qyapi.weixin.qq.com"
+2023-11-27T14:15:56.392299Z DEBUG hyper::client::connect::http: connecting to 183.47.102.153:443
+2023-11-27T14:15:56.404691Z DEBUG hyper::client::connect::http: connected to 183.47.102.153:443
+2023-11-27T14:15:56.476816Z DEBUG hyper::proto::h1::io: flushed 155 bytes
+2023-11-27T14:15:56.609276Z DEBUG hyper::proto::h1::io: parsed 7 headers
+2023-11-27T14:15:56.609526Z DEBUG hyper::proto::h1::conn: incoming body is content-length (277 bytes)
+2023-11-27T14:15:56.609752Z DEBUG hyper::proto::h1::conn: incoming body completed
+2023-11-27T14:15:56.610236Z DEBUG hyper::client::pool: pooling idle connection for ("https", qyapi.weixin.qq.com)
+2023-11-27T14:15:56.612932Z DEBUG hyper::client::connect::dns: resolving host="qyapi.weixin.qq.com"
+2023-11-27T14:15:56.614209Z DEBUG hyper::client::connect::http: connecting to 183.47.102.153:443
+2023-11-27T14:15:56.627264Z DEBUG hyper::client::connect::http: connected to 183.47.102.153:443
+2023-11-27T14:15:56.668300Z DEBUG hyper::proto::h1::io: flushed 315 bytes
+2023-11-27T14:15:56.748597Z DEBUG hyper::proto::h1::io: parsed 7 headers
+2023-11-27T14:15:56.748780Z DEBUG hyper::proto::h1::conn: incoming body is content-length (256 bytes)
+2023-11-27T14:15:56.748999Z DEBUG hyper::proto::h1::conn: incoming body completed
+2023-11-27T14:15:56.749422Z DEBUG hyper::client::pool: pooling idle connection for ("https", qyapi.weixin.qq.com)
+2023-11-27T14:17:53.614560Z  INFO actix_server::server: SIGINT received; starting forced shutdown
+2023-11-27T14:17:53.625123Z DEBUG actix_server::accept: paused accepting connections on 0.0.0.0:8082
+2023-11-27T14:17:53.625312Z  INFO actix_server::accept: accept thread stopped
+2023-11-27T14:17:53.626904Z  INFO actix_server::worker: shutting down idle worker
+2023-11-27T14:17:53.627036Z  INFO actix_server::worker: shutting down idle worker
+2023-11-27T14:17:53.627170Z  INFO actix_server::worker: shutting down idle worker
+2023-11-27T14:17:53.627314Z  INFO actix_server::worker: shutting down idle worker
+2023-11-27T14:17:53.627469Z  INFO actix_server::worker: shutting down idle worker
+2023-11-27T14:17:53.627611Z  INFO actix_server::worker: shutting down idle worker
+2023-11-27T14:17:53.627736Z  INFO actix_server::worker: shutting down idle worker
+2023-11-27T14:17:53.627941Z  INFO actix_server::worker: shutting down idle worker
+2023-11-27T14:17:53.628088Z  INFO actix_server::worker: shutting down idle worker
+2023-11-27T14:17:53.628243Z  INFO actix_server::worker: shutting down idle worker
+2023-11-27T14:17:53.628396Z  INFO actix_server::worker: shutting down idle worker
+2023-11-27T14:17:53.628550Z  INFO actix_server::worker: shutting down idle worker
+2023-11-27T14:17:53.955954Z DEBUG consulrs::client: Not using a TLS client certificate
+2023-11-27T14:17:53.956105Z DEBUG consulrs::client: Not using a TLS client key
+2023-11-27T14:17:53.956278Z  INFO consulrs::client: Checking TLS verification using $CONSUL_HTTP_SSL_VERIFY
+2023-11-27T14:17:53.956485Z DEBUG new: consulrs::client: Using API version 1
+2023-11-27T14:17:53.976944Z  INFO deregister{id="JunhuiTsai-PC:8082"}: consulrs::api: Executing agent/service/deregister/JunhuiTsai-PC:8082 and expecting no response
+2023-11-27T14:17:53.987074Z DEBUG deregister{id="JunhuiTsai-PC:8082"}:exec: rustify::endpoint: Executing endpoint
+2023-11-27T14:17:53.989924Z DEBUG deregister{id="JunhuiTsai-PC:8082"}:exec:request{base="http://127.0.0.1:8500"}:build_request{base="http://127.0.0.1:8500" path="agent/service/deregister/JunhuiTsai-PC:8082" method=PUT}: rustify::http: Building endpoint request
+2023-11-27T14:17:54.013718Z DEBUG deregister{id="JunhuiTsai-PC:8082"}:exec:request{base="http://127.0.0.1:8500"}:request: consulrs::api: Middleware: prepending v1 version to URL
+2023-11-27T14:17:54.013997Z DEBUG deregister{id="JunhuiTsai-PC:8082"}:exec:request{base="http://127.0.0.1:8500"}:request: consulrs::api: Middleware: final URL is http://127.0.0.1:8500/v1/agent/service/deregister/JunhuiTsai-PC:8082?
+2023-11-27T14:17:54.014176Z DEBUG deregister{id="JunhuiTsai-PC:8082"}:exec:request{base="http://127.0.0.1:8500"}:request: consulrs::api: Middleware: adding ACL token to header
+2023-11-27T14:17:54.014396Z DEBUG deregister{id="JunhuiTsai-PC:8082"}:exec:execute: rustify::client: Client sending PUT request to http://127.0.0.1:8500/v1/agent/service/deregister/JunhuiTsai-PC:8082? with 0 bytes of data
+2023-11-27T14:17:54.014773Z DEBUG deregister{id="JunhuiTsai-PC:8082"}:exec:execute:send: hyper::client::connect::http: connecting to 127.0.0.1:8500
+2023-11-27T14:17:54.015561Z DEBUG deregister{id="JunhuiTsai-PC:8082"}:exec:execute:send: hyper::client::connect::http: connected to 127.0.0.1:8500
+2023-11-27T14:17:54.016319Z DEBUG hyper::proto::h1::io: flushed 118 bytes
+2023-11-27T14:17:54.020708Z DEBUG hyper::proto::h1::io: parsed 4 headers
+2023-11-27T14:17:54.020851Z DEBUG hyper::proto::h1::conn: incoming body is empty
+2023-11-27T14:17:54.021217Z DEBUG deregister{id="JunhuiTsai-PC:8082"}:exec:execute:send: hyper::client::pool: pooling idle connection for ("http", 127.0.0.1:8500)
+2023-11-27T14:17:54.021482Z DEBUG deregister{id="JunhuiTsai-PC:8082"}:exec:execute: rustify::client: Client received 200 response with 0 bytes of body data
+2023-11-27T14:18:12.811357Z  INFO message_hub: Listening on https://0.0.0.0:8082
+2023-11-27T14:18:12.813831Z  INFO actix_server::builder: starting 12 workers
+2023-11-27T14:18:12.814618Z DEBUG consulrs::client: Not using a TLS client certificate
+2023-11-27T14:18:12.814761Z DEBUG consulrs::client: Not using a TLS client key
+2023-11-27T14:18:12.814907Z  INFO consulrs::client: Checking TLS verification using $CONSUL_HTTP_SSL_VERIFY
+2023-11-27T14:18:12.815511Z DEBUG new: consulrs::client: Using API version 1
+2023-11-27T14:18:12.816511Z  INFO register{name="message-hub"}: consulrs::api: Executing agent/service/register and expecting no response
+2023-11-27T14:18:12.816741Z DEBUG register{name="message-hub"}:exec: rustify::endpoint: Executing endpoint
+2023-11-27T14:18:12.817199Z DEBUG register{name="message-hub"}:exec:request{base="http://127.0.0.1:8500"}:build_request{base="http://127.0.0.1:8500" path="agent/service/register" method=PUT}: rustify::http: Building endpoint request
+2023-11-27T14:18:12.817687Z DEBUG register{name="message-hub"}:exec:request{base="http://127.0.0.1:8500"}:request: consulrs::api: Middleware: prepending v1 version to URL
+2023-11-27T14:18:12.817925Z DEBUG register{name="message-hub"}:exec:request{base="http://127.0.0.1:8500"}:request: consulrs::api: Middleware: final URL is http://127.0.0.1:8500/v1/agent/service/register
+2023-11-27T14:18:12.818100Z DEBUG register{name="message-hub"}:exec:request{base="http://127.0.0.1:8500"}:request: consulrs::api: Middleware: adding ACL token to header
+2023-11-27T14:18:12.818636Z DEBUG register{name="message-hub"}:exec:execute: rustify::client: Client sending PUT request to http://127.0.0.1:8500/v1/agent/service/register with 198 bytes of data
+2023-11-27T14:18:12.819869Z DEBUG register{name="message-hub"}:exec:execute:send: hyper::client::connect::http: connecting to 127.0.0.1:8500
+2023-11-27T14:18:12.820916Z DEBUG register{name="message-hub"}:exec:execute:send: hyper::client::connect::http: connected to 127.0.0.1:8500
+2023-11-27T14:18:12.822224Z DEBUG hyper::proto::h1::io: flushed 315 bytes
+2023-11-27T14:18:12.824868Z DEBUG hyper::proto::h1::io: parsed 4 headers
+2023-11-27T14:18:12.825119Z DEBUG hyper::proto::h1::conn: incoming body is empty
+2023-11-27T14:18:12.825696Z DEBUG register{name="message-hub"}:exec:execute:send: hyper::client::pool: pooling idle connection for ("http", 127.0.0.1:8500)
+2023-11-27T14:18:12.826166Z DEBUG register{name="message-hub"}:exec:execute: rustify::client: Client received 200 response with 0 bytes of body data
+2023-11-27T14:18:12.826679Z  INFO actix_server::server: Actix runtime found; starting in Actix runtime
+2023-11-27T14:18:12.952459Z DEBUG message_hub::handler: POST /send/caijh
+2023-11-27T14:18:12.952717Z DEBUG message_hub::auth: signature:1aa8cad581598371e5e48b7680f56b6576844838
+2023-11-27T14:18:12.952877Z DEBUG message_hub::auth: timestamp:1234567890
+2023-11-27T14:18:12.953013Z DEBUG message_hub::auth: nonce:xyz
+2023-11-27T14:18:12.953283Z DEBUG message_hub::auth: Calculated signature: 1aa8cad581598371e5e48b7680f56b6576844838
+2023-11-27T14:18:12.953443Z DEBUG message_hub::handler: auth pass!
+2023-11-27T14:18:12.953578Z DEBUG message_hub::handler: msg:hello
+2023-11-27T14:18:12.954477Z DEBUG hyper::client::connect::dns: resolving host="qyapi.weixin.qq.com"
+2023-11-27T14:18:12.993098Z DEBUG hyper::client::connect::http: connecting to 183.47.102.153:443
+2023-11-27T14:18:13.019992Z DEBUG hyper::client::connect::http: connected to 183.47.102.153:443
+2023-11-27T14:18:13.084393Z DEBUG hyper::proto::h1::io: flushed 315 bytes
+2023-11-27T14:18:13.201308Z DEBUG hyper::proto::h1::io: parsed 7 headers
+2023-11-27T14:18:13.201460Z DEBUG hyper::proto::h1::conn: incoming body is content-length (256 bytes)
+2023-11-27T14:18:13.201686Z DEBUG hyper::proto::h1::conn: incoming body completed
+2023-11-27T14:18:13.202007Z DEBUG hyper::client::pool: pooling idle connection for ("https", qyapi.weixin.qq.com)
+2023-11-27T14:18:13.202377Z DEBUG message_hub::handler: "未找到用户"
+2023-11-27T14:19:33.657539Z  INFO actix_server::server: SIGINT received; starting forced shutdown
+2023-11-27T14:19:33.657901Z  INFO actix_server::worker: shutting down idle worker
+2023-11-27T14:19:33.658037Z  INFO actix_server::worker: shutting down idle worker
+2023-11-27T14:19:33.658183Z  INFO actix_server::worker: shutting down idle worker
+2023-11-27T14:19:33.658403Z  INFO actix_server::worker: shutting down idle worker
+2023-11-27T14:19:33.658545Z  INFO actix_server::worker: shutting down idle worker
+2023-11-27T14:19:33.658760Z  INFO actix_server::worker: shutting down idle worker
+2023-11-27T14:19:33.658924Z  INFO actix_server::worker: shutting down idle worker
+2023-11-27T14:19:33.659101Z DEBUG actix_server::accept: paused accepting connections on 0.0.0.0:8082
+2023-11-27T14:19:33.659273Z  INFO actix_server::worker: shutting down idle worker
+2023-11-27T14:19:33.659417Z  INFO actix_server::worker: shutting down idle worker
+2023-11-27T14:19:33.659602Z  INFO actix_server::worker: shutting down idle worker
+2023-11-27T14:19:33.659920Z  INFO actix_server::worker: shutting down idle worker
+2023-11-27T14:19:33.660344Z  INFO actix_server::worker: shutting down idle worker
+2023-11-27T14:19:33.660515Z  INFO actix_server::accept: accept thread stopped
+2023-11-27T14:19:33.971242Z DEBUG consulrs::client: Not using a TLS client certificate
+2023-11-27T14:19:33.971473Z DEBUG consulrs::client: Not using a TLS client key
+2023-11-27T14:19:33.971676Z  INFO consulrs::client: Checking TLS verification using $CONSUL_HTTP_SSL_VERIFY
+2023-11-27T14:19:33.971929Z DEBUG new: consulrs::client: Using API version 1
+2023-11-27T14:19:33.972319Z  INFO deregister{id="JunhuiTsai-PC:8082"}: consulrs::api: Executing agent/service/deregister/JunhuiTsai-PC:8082 and expecting no response
+2023-11-27T14:19:33.972613Z DEBUG deregister{id="JunhuiTsai-PC:8082"}:exec: rustify::endpoint: Executing endpoint
+2023-11-27T14:19:33.972950Z DEBUG deregister{id="JunhuiTsai-PC:8082"}:exec:request{base="http://127.0.0.1:8500"}:build_request{base="http://127.0.0.1:8500" path="agent/service/deregister/JunhuiTsai-PC:8082" method=PUT}: rustify::http: Building endpoint request
+2023-11-27T14:19:33.973358Z DEBUG deregister{id="JunhuiTsai-PC:8082"}:exec:request{base="http://127.0.0.1:8500"}:request: consulrs::api: Middleware: prepending v1 version to URL
+2023-11-27T14:19:33.973662Z DEBUG deregister{id="JunhuiTsai-PC:8082"}:exec:request{base="http://127.0.0.1:8500"}:request: consulrs::api: Middleware: final URL is http://127.0.0.1:8500/v1/agent/service/deregister/JunhuiTsai-PC:8082?
+2023-11-27T14:19:33.973976Z DEBUG deregister{id="JunhuiTsai-PC:8082"}:exec:request{base="http://127.0.0.1:8500"}:request: consulrs::api: Middleware: adding ACL token to header
+2023-11-27T14:19:33.974286Z DEBUG deregister{id="JunhuiTsai-PC:8082"}:exec:execute: rustify::client: Client sending PUT request to http://127.0.0.1:8500/v1/agent/service/deregister/JunhuiTsai-PC:8082? with 0 bytes of data
+2023-11-27T14:19:33.974750Z DEBUG deregister{id="JunhuiTsai-PC:8082"}:exec:execute:send: hyper::client::connect::http: connecting to 127.0.0.1:8500
+2023-11-27T14:19:33.975814Z DEBUG deregister{id="JunhuiTsai-PC:8082"}:exec:execute:send: hyper::client::connect::http: connected to 127.0.0.1:8500
+2023-11-27T14:19:33.976541Z DEBUG hyper::proto::h1::io: flushed 118 bytes
+2023-11-27T14:19:33.978756Z DEBUG hyper::proto::h1::io: parsed 4 headers
+2023-11-27T14:19:33.978942Z DEBUG hyper::proto::h1::conn: incoming body is empty
+2023-11-27T14:19:33.979430Z DEBUG deregister{id="JunhuiTsai-PC:8082"}:exec:execute:send: hyper::client::pool: pooling idle connection for ("http", 127.0.0.1:8500)
+2023-11-27T14:19:33.979745Z DEBUG deregister{id="JunhuiTsai-PC:8082"}:exec:execute: rustify::client: Client received 200 response with 0 bytes of body data
+2023-11-27T14:19:49.113282Z  INFO message_hub: Listening on https://0.0.0.0:8082
+2023-11-27T14:19:49.115934Z  INFO actix_server::builder: starting 12 workers
+2023-11-27T14:19:49.116822Z DEBUG consulrs::client: Not using a TLS client certificate
+2023-11-27T14:19:49.116968Z DEBUG consulrs::client: Not using a TLS client key
+2023-11-27T14:19:49.117132Z  INFO consulrs::client: Checking TLS verification using $CONSUL_HTTP_SSL_VERIFY
+2023-11-27T14:19:49.117783Z DEBUG new: consulrs::client: Using API version 1
+2023-11-27T14:19:49.118906Z  INFO register{name="message-hub"}: consulrs::api: Executing agent/service/register and expecting no response
+2023-11-27T14:19:49.119173Z DEBUG register{name="message-hub"}:exec: rustify::endpoint: Executing endpoint
+2023-11-27T14:19:49.119719Z DEBUG register{name="message-hub"}:exec:request{base="http://127.0.0.1:8500"}:build_request{base="http://127.0.0.1:8500" path="agent/service/register" method=PUT}: rustify::http: Building endpoint request
+2023-11-27T14:19:49.120258Z DEBUG register{name="message-hub"}:exec:request{base="http://127.0.0.1:8500"}:request: consulrs::api: Middleware: prepending v1 version to URL
+2023-11-27T14:19:49.120515Z DEBUG register{name="message-hub"}:exec:request{base="http://127.0.0.1:8500"}:request: consulrs::api: Middleware: final URL is http://127.0.0.1:8500/v1/agent/service/register
+2023-11-27T14:19:49.120686Z DEBUG register{name="message-hub"}:exec:request{base="http://127.0.0.1:8500"}:request: consulrs::api: Middleware: adding ACL token to header
+2023-11-27T14:19:49.121020Z DEBUG register{name="message-hub"}:exec:execute: rustify::client: Client sending PUT request to http://127.0.0.1:8500/v1/agent/service/register with 198 bytes of data
+2023-11-27T14:19:49.122187Z DEBUG register{name="message-hub"}:exec:execute:send: hyper::client::connect::http: connecting to 127.0.0.1:8500
+2023-11-27T14:19:49.123341Z DEBUG register{name="message-hub"}:exec:execute:send: hyper::client::connect::http: connected to 127.0.0.1:8500
+2023-11-27T14:19:49.124666Z DEBUG hyper::proto::h1::io: flushed 315 bytes
+2023-11-27T14:19:49.126751Z DEBUG hyper::proto::h1::io: parsed 4 headers
+2023-11-27T14:19:49.126915Z DEBUG hyper::proto::h1::conn: incoming body is empty
+2023-11-27T14:19:49.127366Z DEBUG register{name="message-hub"}:exec:execute:send: hyper::client::pool: pooling idle connection for ("http", 127.0.0.1:8500)
+2023-11-27T14:19:49.127662Z DEBUG register{name="message-hub"}:exec:execute: rustify::client: Client received 200 response with 0 bytes of body data
+2023-11-27T14:19:49.128073Z  INFO actix_server::server: Actix runtime found; starting in Actix runtime
+2023-11-27T14:19:57.846027Z DEBUG message_hub::handler: POST /send/caijh
+2023-11-27T14:19:57.846388Z DEBUG message_hub::auth: signature:1aa8cad581598371e5e48b7680f56b6576844838
+2023-11-27T14:19:57.846584Z DEBUG message_hub::auth: timestamp:1234567890
+2023-11-27T14:19:57.846760Z DEBUG message_hub::auth: nonce:xyz
+2023-11-27T14:19:57.847038Z DEBUG message_hub::auth: Calculated signature: 1aa8cad581598371e5e48b7680f56b6576844838
+2023-11-27T14:19:57.847242Z DEBUG message_hub::handler: auth pass!
+2023-11-27T14:19:57.847448Z DEBUG message_hub::handler: msg:hello
+2023-11-27T14:19:57.848487Z DEBUG hyper::client::connect::dns: resolving host="qyapi.weixin.qq.com"
+2023-11-27T14:19:57.877268Z DEBUG hyper::client::connect::http: connecting to 183.47.102.153:443
+2023-11-27T14:19:57.891167Z DEBUG hyper::client::connect::http: connected to 183.47.102.153:443
+2023-11-27T14:19:58.074250Z DEBUG hyper::proto::h1::io: flushed 315 bytes
+2023-11-27T14:19:58.161043Z DEBUG hyper::proto::h1::io: parsed 7 headers
+2023-11-27T14:19:58.161198Z DEBUG hyper::proto::h1::conn: incoming body is content-length (256 bytes)
+2023-11-27T14:19:58.161393Z DEBUG hyper::proto::h1::conn: incoming body completed
+2023-11-27T14:19:58.161712Z DEBUG hyper::client::pool: pooling idle connection for ("https", qyapi.weixin.qq.com)
+2023-11-27T14:19:58.162115Z DEBUG message_hub::user: User { errcode: 60020, errmsg: "not allow to access from your ip, hint: [1701094880419150852246799], from ip: 59.41.195.59, more info at https://open.work.weixin.qq.com/devtool/query?e=60020", userid: None, name: None, department: Some([]), order: Some([]), position: None, mobile: None, gender: None, email: None, biz_mail: None, is_leader_in_dept: Some([]), direct_leader: Some([]), avatar: None, thumb_avatar: None, telephone: None, alias: None, status: None, address: None, open_userid: None, main_department: None }
+2023-11-27T14:19:58.162302Z DEBUG message_hub::handler: "未找到用户"
+2023-11-27T14:24:46.426494Z  INFO actix_server::server: SIGINT received; starting forced shutdown
+2023-11-27T14:24:46.426932Z DEBUG actix_server::accept: paused accepting connections on 0.0.0.0:8082
+2023-11-27T14:24:46.427076Z  INFO actix_server::worker: shutting down idle worker
+2023-11-27T14:24:46.427220Z  INFO actix_server::worker: shutting down idle worker
+2023-11-27T14:24:46.427394Z  INFO actix_server::worker: shutting down idle worker
+2023-11-27T14:24:46.427528Z  INFO actix_server::worker: shutting down idle worker
+2023-11-27T14:24:46.427740Z  INFO actix_server::worker: shutting down idle worker
+2023-11-27T14:24:46.427973Z  INFO actix_server::worker: shutting down idle worker
+2023-11-27T14:24:46.428137Z  INFO actix_server::worker: shutting down idle worker
+2023-11-27T14:24:46.428319Z  INFO actix_server::worker: shutting down idle worker
+2023-11-27T14:24:46.428467Z  INFO actix_server::worker: shutting down idle worker
+2023-11-27T14:24:46.428653Z  INFO actix_server::worker: shutting down idle worker
+2023-11-27T14:24:46.428820Z  INFO actix_server::worker: shutting down idle worker
+2023-11-27T14:24:46.428954Z  INFO actix_server::worker: shutting down idle worker
+2023-11-27T14:24:46.429083Z  INFO actix_server::accept: accept thread stopped
+2023-11-27T14:24:46.736170Z DEBUG consulrs::client: Not using a TLS client certificate
+2023-11-27T14:24:46.736349Z DEBUG consulrs::client: Not using a TLS client key
+2023-11-27T14:24:46.736492Z  INFO consulrs::client: Checking TLS verification using $CONSUL_HTTP_SSL_VERIFY
+2023-11-27T14:24:46.736704Z DEBUG new: consulrs::client: Using API version 1
+2023-11-27T14:24:46.736999Z  INFO deregister{id="JunhuiTsai-PC:8082"}: consulrs::api: Executing agent/service/deregister/JunhuiTsai-PC:8082 and expecting no response
+2023-11-27T14:24:46.737283Z DEBUG deregister{id="JunhuiTsai-PC:8082"}:exec: rustify::endpoint: Executing endpoint
+2023-11-27T14:24:46.737625Z DEBUG deregister{id="JunhuiTsai-PC:8082"}:exec:request{base="http://127.0.0.1:8500"}:build_request{base="http://127.0.0.1:8500" path="agent/service/deregister/JunhuiTsai-PC:8082" method=PUT}: rustify::http: Building endpoint request
+2023-11-27T14:24:46.737975Z DEBUG deregister{id="JunhuiTsai-PC:8082"}:exec:request{base="http://127.0.0.1:8500"}:request: consulrs::api: Middleware: prepending v1 version to URL
+2023-11-27T14:24:46.738232Z DEBUG deregister{id="JunhuiTsai-PC:8082"}:exec:request{base="http://127.0.0.1:8500"}:request: consulrs::api: Middleware: final URL is http://127.0.0.1:8500/v1/agent/service/deregister/JunhuiTsai-PC:8082?
+2023-11-27T14:24:46.738398Z DEBUG deregister{id="JunhuiTsai-PC:8082"}:exec:request{base="http://127.0.0.1:8500"}:request: consulrs::api: Middleware: adding ACL token to header
+2023-11-27T14:24:46.738654Z DEBUG deregister{id="JunhuiTsai-PC:8082"}:exec:execute: rustify::client: Client sending PUT request to http://127.0.0.1:8500/v1/agent/service/deregister/JunhuiTsai-PC:8082? with 0 bytes of data
+2023-11-27T14:24:46.739005Z DEBUG deregister{id="JunhuiTsai-PC:8082"}:exec:execute:send: hyper::client::connect::http: connecting to 127.0.0.1:8500
+2023-11-27T14:24:46.739836Z DEBUG deregister{id="JunhuiTsai-PC:8082"}:exec:execute:send: hyper::client::connect::http: connected to 127.0.0.1:8500
+2023-11-27T14:24:46.740534Z DEBUG hyper::proto::h1::io: flushed 118 bytes
+2023-11-27T14:24:46.742497Z DEBUG hyper::proto::h1::io: parsed 4 headers
+2023-11-27T14:24:46.742676Z DEBUG hyper::proto::h1::conn: incoming body is empty
+2023-11-27T14:24:46.743023Z DEBUG deregister{id="JunhuiTsai-PC:8082"}:exec:execute:send: hyper::client::pool: pooling idle connection for ("http", 127.0.0.1:8500)
+2023-11-27T14:24:46.743287Z DEBUG deregister{id="JunhuiTsai-PC:8082"}:exec:execute: rustify::client: Client received 200 response with 0 bytes of body data
+2023-11-27T14:25:02.518421Z  INFO message_hub: Listening on https://0.0.0.0:8082
+2023-11-27T14:25:02.521420Z  INFO actix_server::builder: starting 12 workers
+2023-11-27T14:25:02.522352Z DEBUG consulrs::client: Not using a TLS client certificate
+2023-11-27T14:25:02.522519Z DEBUG consulrs::client: Not using a TLS client key
+2023-11-27T14:25:02.522706Z  INFO consulrs::client: Checking TLS verification using $CONSUL_HTTP_SSL_VERIFY
+2023-11-27T14:25:02.523522Z DEBUG new: consulrs::client: Using API version 1
+2023-11-27T14:25:02.525246Z  INFO register{name="message-hub"}: consulrs::api: Executing agent/service/register and expecting no response
+2023-11-27T14:25:02.525594Z DEBUG register{name="message-hub"}:exec: rustify::endpoint: Executing endpoint
+2023-11-27T14:25:02.526249Z DEBUG register{name="message-hub"}:exec:request{base="http://127.0.0.1:8500"}:build_request{base="http://127.0.0.1:8500" path="agent/service/register" method=PUT}: rustify::http: Building endpoint request
+2023-11-27T14:25:02.526869Z DEBUG register{name="message-hub"}:exec:request{base="http://127.0.0.1:8500"}:request: consulrs::api: Middleware: prepending v1 version to URL
+2023-11-27T14:25:02.527213Z DEBUG register{name="message-hub"}:exec:request{base="http://127.0.0.1:8500"}:request: consulrs::api: Middleware: final URL is http://127.0.0.1:8500/v1/agent/service/register
+2023-11-27T14:25:02.527449Z DEBUG register{name="message-hub"}:exec:request{base="http://127.0.0.1:8500"}:request: consulrs::api: Middleware: adding ACL token to header
+2023-11-27T14:25:02.527855Z DEBUG register{name="message-hub"}:exec:execute: rustify::client: Client sending PUT request to http://127.0.0.1:8500/v1/agent/service/register with 198 bytes of data
+2023-11-27T14:25:02.529334Z DEBUG register{name="message-hub"}:exec:execute:send: hyper::client::connect::http: connecting to 127.0.0.1:8500
+2023-11-27T14:25:02.530354Z DEBUG register{name="message-hub"}:exec:execute:send: hyper::client::connect::http: connected to 127.0.0.1:8500
+2023-11-27T14:25:02.531689Z DEBUG hyper::proto::h1::io: flushed 315 bytes
+2023-11-27T14:25:02.533602Z DEBUG hyper::proto::h1::io: parsed 4 headers
+2023-11-27T14:25:02.533811Z DEBUG hyper::proto::h1::conn: incoming body is empty
+2023-11-27T14:25:02.534305Z DEBUG register{name="message-hub"}:exec:execute:send: hyper::client::pool: pooling idle connection for ("http", 127.0.0.1:8500)
+2023-11-27T14:25:02.534605Z DEBUG register{name="message-hub"}:exec:execute: rustify::client: Client received 200 response with 0 bytes of body data
+2023-11-27T14:25:02.535060Z  INFO actix_server::server: Actix runtime found; starting in Actix runtime
+2023-11-27T14:25:05.654023Z DEBUG message_hub::handler: POST /send/caijh
+2023-11-27T14:25:05.654276Z DEBUG message_hub::auth: signature:1aa8cad581598371e5e48b7680f56b6576844838
+2023-11-27T14:25:05.654440Z DEBUG message_hub::auth: timestamp:1234567890
+2023-11-27T14:25:05.654601Z DEBUG message_hub::auth: nonce:xyz
+2023-11-27T14:25:05.654866Z DEBUG message_hub::auth: Calculated signature: 1aa8cad581598371e5e48b7680f56b6576844838
+2023-11-27T14:25:05.655028Z DEBUG message_hub::handler: auth pass!
+2023-11-27T14:25:05.655189Z DEBUG message_hub::handler: msg:hello
+2023-11-27T14:25:05.656145Z DEBUG hyper::client::connect::dns: resolving host="qyapi.weixin.qq.com"
+2023-11-27T14:25:05.668289Z DEBUG hyper::client::connect::http: connecting to 183.47.100.66:443
+2023-11-27T14:25:05.677226Z DEBUG hyper::client::connect::http: connected to 183.47.100.66:443
+2023-11-27T14:25:05.732344Z DEBUG hyper::proto::h1::io: flushed 315 bytes
+2023-11-27T14:25:05.830706Z DEBUG hyper::proto::h1::io: parsed 7 headers
+2023-11-27T14:25:05.830875Z DEBUG hyper::proto::h1::conn: incoming body is content-length (256 bytes)
+2023-11-27T14:25:05.831096Z DEBUG hyper::proto::h1::conn: incoming body completed
+2023-11-27T14:25:05.831401Z DEBUG hyper::client::pool: pooling idle connection for ("https", qyapi.weixin.qq.com)
+2023-11-27T14:25:05.831749Z DEBUG message_hub::handler: "not allow to access from your ip, hint: [1701095187315353252989568], from ip: 59.41.195.59, more info at https://open.work.weixin.qq.com/devtool/query?e=60020"
+2023-11-27T14:26:32.185314Z  INFO actix_server::server: SIGINT received; starting forced shutdown
+2023-11-27T14:26:32.185613Z  INFO actix_server::worker: shutting down idle worker
+2023-11-27T14:26:32.185742Z  INFO actix_server::worker: shutting down idle worker
+2023-11-27T14:26:32.185865Z DEBUG actix_server::accept: paused accepting connections on 0.0.0.0:8082
+2023-11-27T14:26:32.186059Z  INFO actix_server::worker: shutting down idle worker
+2023-11-27T14:26:32.186207Z  INFO actix_server::worker: shutting down idle worker
+2023-11-27T14:26:32.186339Z  INFO actix_server::worker: shutting down idle worker
+2023-11-27T14:26:32.186477Z  INFO actix_server::worker: shutting down idle worker
+2023-11-27T14:26:32.186619Z  INFO actix_server::worker: shutting down idle worker
+2023-11-27T14:26:32.186787Z  INFO actix_server::worker: shutting down idle worker
+2023-11-27T14:26:32.186922Z  INFO actix_server::worker: shutting down idle worker
+2023-11-27T14:26:32.187098Z  INFO actix_server::worker: shutting down idle worker
+2023-11-27T14:26:32.187245Z  INFO actix_server::worker: shutting down idle worker
+2023-11-27T14:26:32.187421Z  INFO actix_server::worker: shutting down idle worker
+2023-11-27T14:26:32.187573Z  INFO actix_server::accept: accept thread stopped
+2023-11-27T14:26:32.490241Z DEBUG consulrs::client: Not using a TLS client certificate
+2023-11-27T14:26:32.490395Z DEBUG consulrs::client: Not using a TLS client key
+2023-11-27T14:26:32.490538Z  INFO consulrs::client: Checking TLS verification using $CONSUL_HTTP_SSL_VERIFY
+2023-11-27T14:26:32.490762Z DEBUG new: consulrs::client: Using API version 1
+2023-11-27T14:26:32.491041Z  INFO deregister{id="JunhuiTsai-PC:8082"}: consulrs::api: Executing agent/service/deregister/JunhuiTsai-PC:8082 and expecting no response
+2023-11-27T14:26:32.491239Z DEBUG deregister{id="JunhuiTsai-PC:8082"}:exec: rustify::endpoint: Executing endpoint
+2023-11-27T14:26:32.491510Z DEBUG deregister{id="JunhuiTsai-PC:8082"}:exec:request{base="http://127.0.0.1:8500"}:build_request{base="http://127.0.0.1:8500" path="agent/service/deregister/JunhuiTsai-PC:8082" method=PUT}: rustify::http: Building endpoint request
+2023-11-27T14:26:32.491846Z DEBUG deregister{id="JunhuiTsai-PC:8082"}:exec:request{base="http://127.0.0.1:8500"}:request: consulrs::api: Middleware: prepending v1 version to URL
+2023-11-27T14:26:32.492082Z DEBUG deregister{id="JunhuiTsai-PC:8082"}:exec:request{base="http://127.0.0.1:8500"}:request: consulrs::api: Middleware: final URL is http://127.0.0.1:8500/v1/agent/service/deregister/JunhuiTsai-PC:8082?
+2023-11-27T14:26:32.492252Z DEBUG deregister{id="JunhuiTsai-PC:8082"}:exec:request{base="http://127.0.0.1:8500"}:request: consulrs::api: Middleware: adding ACL token to header
+2023-11-27T14:26:32.492465Z DEBUG deregister{id="JunhuiTsai-PC:8082"}:exec:execute: rustify::client: Client sending PUT request to http://127.0.0.1:8500/v1/agent/service/deregister/JunhuiTsai-PC:8082? with 0 bytes of data
+2023-11-27T14:26:32.492808Z DEBUG deregister{id="JunhuiTsai-PC:8082"}:exec:execute:send: hyper::client::connect::http: connecting to 127.0.0.1:8500
+2023-11-27T14:26:32.493616Z DEBUG deregister{id="JunhuiTsai-PC:8082"}:exec:execute:send: hyper::client::connect::http: connected to 127.0.0.1:8500
+2023-11-27T14:26:32.494186Z DEBUG hyper::proto::h1::io: flushed 118 bytes
+2023-11-27T14:26:32.495925Z DEBUG hyper::proto::h1::io: parsed 4 headers
+2023-11-27T14:26:32.496077Z DEBUG hyper::proto::h1::conn: incoming body is empty
+2023-11-27T14:26:32.496408Z DEBUG deregister{id="JunhuiTsai-PC:8082"}:exec:execute:send: hyper::client::pool: pooling idle connection for ("http", 127.0.0.1:8500)
+2023-11-27T14:26:32.496662Z DEBUG deregister{id="JunhuiTsai-PC:8082"}:exec:execute: rustify::client: Client received 200 response with 0 bytes of body data

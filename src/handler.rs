@@ -44,7 +44,7 @@ pub async fn do_get_wx_corp_receive(query: web::Query<WxCorpJoinValidate>) -> im
     let config = Configuration::get_config().await;
     let token = config.get_string("wxcorp_token").unwrap();
     let aes_key = config.get_string("wxcorp_encoding_aes_key").unwrap();
-    let result = wx_corp::verify_url(msg_signature, token.as_str(),time_stamp, nonce, echo_str, aes_key.as_str());
+    let result = wx_corp::verify_url(msg_signature, token.as_str(), time_stamp, nonce, echo_str, aes_key.as_str());
     match result {
         Ok(r) => HttpResponse::Ok().body(r),
         Err(_) => HttpResponse::InternalServerError().finish()
@@ -77,7 +77,7 @@ pub async fn handle_send_message(user: Path<User>, query: web::Query<Signature>,
     match user {
         Ok(_) => {
             let app_id = config.get_string("wxcorp_app_id").unwrap();
-            let response = send_by_wx_corp(app_id.as_str(),username, title.as_str(), content).await;
+            let response = send_by_wx_corp(app_id.as_str(), username, title.as_str(), content).await;
             HttpResponse::Ok().body(response)
         }
         Err(e) => {
@@ -115,7 +115,7 @@ impl StopHandle {
     pub async fn stop(&self, graceful: bool) {
         let _ = registration::deregister().await;
         #[allow(clippy::let_underscore_future)]
-        let _ = self.inner.lock().as_ref().unwrap().stop(graceful);
+            let _ = self.inner.lock().as_ref().unwrap().stop(graceful);
     }
 }
 
