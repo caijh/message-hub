@@ -5,11 +5,11 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-util = { git = "https://caijh@bitbucket.org/bytebinary/util_rs.git" }
-logger = { git = "https://caijh@bitbucket.org/bytebinary/logger_rs.git" }
-configuration = { git = "https://caijh@bitbucket.org/bytebinary/configuration_rs.git" }
-registration = { git = "https://caijh@bitbucket.org/bytebinary/registration_rs.git" }
-database = { git = "https://caijh@bitbucket.org/bytebinary/database_rs.git" }
+util = { git = "https://caijh@bitbucket.org/bytebinary/util-rs.git" }
+logger = { git = "https://caijh@bitbucket.org/bytebinary/logger-rs.git" }
+configuration = { git = "https://caijh@bitbucket.org/bytebinary/configuration-rs.git" }
+registration = { git = "https://caijh@bitbucket.org/bytebinary/registration-rs.git" }
+database = { git = "https://caijh@bitbucket.org/bytebinary/database-rs.git" }
 redis_util = { git = "https://caijh@bitbucket.org/bytebinary/redis-util-rs.git" }
 futures = "0.3.29"
 actix-web = "4.4.0"
