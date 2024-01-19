@@ -140,5 +140,5 @@ pub async fn send_by_wx_corp(app_id: &str, username: &str, title: &str, msg: &st
 
 pub async fn get_message_detail(uuid: &str) -> Option<Message> {
     let rb = SERVICES.get::<DatabaseService>().dao();
-    Message::select_by_uuid(&rb, uuid).await.unwrap()
+    Message::select_by_uuid(rb, uuid).await.unwrap()
 }

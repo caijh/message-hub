@@ -2,15 +2,13 @@ use actix_web::{App, HttpServer, web};
 use actix_web::web::get;
 use clap::{arg, Command, crate_version};
 use configuration::Configuration;
-use handlebars::Handlebars;
+use handlebars::{DirectorySourceOptions, Handlebars};
 use logger::{Logger, LoggerConfig};
 use tracing::{error, info};
 
 use message_hub::handler;
 use message_hub::handler::{stop, StopHandle};
 use message_hub::services::init_services;
-
-
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -35,8 +33,7 @@ async fn main() -> std::io::Result<()> {
     let config = Configuration::get_config().await.clone();
 
     let logger_config = LoggerConfig::get_config(&config);
-    let mut logger: Logger = Logger::new(&logger_config);
-    logger.init();
+    Logger::init_logger(&logger_config);
 
     // 初始化Service
     init_services(&config).await.expect("init services failed");
@@ -47,7 +44,7 @@ async fn main() -> std::io::Result<()> {
     info!("Listening on https://{}", addr);
     let mut hbars = Handlebars::new();
     hbars
-        .register_templates_directory(".html", "./static/")
+        .register_templates_directory("./static/", DirectorySourceOptions { tpl_extension: ".html".to_string(), hidden: false, temporary: false })
         .unwrap();
     let hbars_ref = web::Data::new(hbars);
     let server = HttpServer::new({
