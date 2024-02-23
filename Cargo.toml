@@ -12,28 +12,28 @@ registration = { git = "https://caijh@bitbucket.org/bytebinary/registration-rs.g
 database = { git = "https://caijh@bitbucket.org/bytebinary/database-rs.git" }
 redis_util = { git = "https://caijh@bitbucket.org/bytebinary/redis-util-rs.git" }
 futures = "0.3.30"
-actix-web = "4.4.1"
+actix-web = "4.5.1"
 chrono = "0.4"
 rust-crypto = "^0.2"
 rkv = "0.19.0"
-config = "0.13.4"
-clap = { version = "4.4.18", features = ["derive", "cargo"] }
-reqwest = { version = "0.11.23", features = ["json"] }
+config = "0.14.0"
+clap = { version = "4.5.1", features = ["derive", "cargo"] }
+reqwest = { version = "0.11.24", features = ["json"] }
 quick-xml = "0.31.0"
 uuid = { version = "1.7.0", features = ["v4"] }
 sha1_smol = "1.0.0"
 base64 = "0.21.7"
-aes = "0.8.3"
+aes = "0.8.4"
 actix-files = "0.6.5"
-handlebars = { version = "5.1.1", features = ["dir_source"] }
+handlebars = { version = "5.1.0", features = ["dir_source"] }
 rbs = "4.5.3"
-rbatis = "4.5.11"
-rbdc-mysql = "4.5.3"
+rbatis = "4.5.14"
+rbdc-mysql = "4.5.5"
 state = "0.6.0"
-serde = "1.0.195"
-serde_derive = "1.0.195"
-serde_json = "1.0.111"
-env_logger = "0.10.2"
+serde = "1.0.197"
+serde_derive = "1.0.197"
+serde_json = "1.0.114"
+env_logger = "0.11.2"
 lazy_static = "1.4.0"
 url = "2.5.0"
 parking_lot = "0.12.1"
