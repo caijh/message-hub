@@ -77,7 +77,8 @@ pub async fn handle_send_message(user: Path<User>, query: web::Query<Signature>,
     match user {
         Ok(_) => {
             let app_id = config.get_string("wxcorp_app_id").unwrap();
-            let response = send_by_wx_corp(app_id.as_str(), username, title.as_str(), content).await;
+            let domain = config.get_string("server.domain").unwrap();
+            let response = send_by_wx_corp(&domain,app_id.as_str(), username, title.as_str(), content).await;
             HttpResponse::Ok().body(response)
         }
         Err(e) => {

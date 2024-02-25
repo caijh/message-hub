@@ -50,7 +50,7 @@ pub struct MessageReceiver {
 crud!(MessageReceiver {});
 
 impl TextCardMessage {
-    pub fn new(app_id: &str, user: &str, message: &Message) -> Self {
+    pub fn new(domain: &str, app_id: &str, user: &str, message: &Message) -> Self {
         TextCardMessage {
             uuid: message.uuid.clone(),
             touser: Some(user.to_string()),
@@ -65,7 +65,7 @@ impl TextCardMessage {
                                      message.content.clone().unwrap(),
                                      chrono::Local::now().format("%Y-%m-%d %H:%M:%S")
                 ),
-                url: format!("https://message.junhuitsai.space/message/{}", message.uuid.clone().unwrap()),
+                url: format!("https://{}/message/{}", domain, message.uuid.clone().unwrap()),
                 btntxt: "查看详情".to_string(),
             },
             enable_id_trans: 0,
@@ -75,7 +75,7 @@ impl TextCardMessage {
     }
 }
 
-pub async fn send_by_wx_corp(app_id: &str, username: &str, title: &str, msg: &str) -> String {
+pub async fn send_by_wx_corp(domain: &str, app_id: &str, username: &str, title: &str, msg: &str) -> String {
     let message = Message {
         id: None,
         uuid: Some(uuid::Uuid::new_v4().to_string()),
@@ -96,7 +96,7 @@ pub async fn send_by_wx_corp(app_id: &str, username: &str, title: &str, msg: &st
         .await
         .unwrap();
 
-    let msg = TextCardMessage::new(app_id, username, &message);
+    let msg = TextCardMessage::new(domain, app_id, username, &message);
 
     let json = serde_json::to_string(&msg).unwrap();
     let result = SERVICES.get::<WxCorpService>().send(&json).await;
