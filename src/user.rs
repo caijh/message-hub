@@ -1,10 +1,10 @@
 use std::error::Error;
+use context::SERVICES;
 
 use redis::Commands;
 use redis_util::Redis;
 use serde_derive::{Deserialize, Serialize};
 
-use crate::services::SERVICES;
 use crate::wx_corp::WxCorpService;
 
 #[derive(Debug, Deserialize, Clone, Serialize)]

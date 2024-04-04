@@ -1,11 +1,11 @@
 use std::ops::Not;
+use context::SERVICES;
 
-use database::DatabaseService;
+use database::DbService;
 use rbatis::{crud, impl_select};
 use rbatis::rbdc::datetime::DateTime;
 use serde_derive::{Deserialize, Serialize};
 
-use crate::services::SERVICES;
 use crate::wx_corp::{SendMessageResult, WxCorpService};
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -83,7 +83,7 @@ pub async fn send_by_wx_corp(domain: &str, app_id: &str, username: &str, title: 
         content: Some(msg.to_string()),
         send_time: Some(DateTime::now()),
     };
-    let rb = SERVICES.get::<DatabaseService>().dao();
+    let rb = SERVICES.get::<DbService>().dao();
     let mut tx = rb.acquire_begin().await.unwrap();
     let result = Message::insert(&tx, &message).await.unwrap();
     let message_id = result.last_insert_id.as_u64().unwrap();
@@ -139,6 +139,6 @@ pub async fn send_by_wx_corp(domain: &str, app_id: &str, username: &str, title: 
 }
 
 pub async fn get_message_detail(uuid: &str) -> Option<Message> {
-    let rb = SERVICES.get::<DatabaseService>().dao();
+    let rb = SERVICES.get::<DbService>().dao();
     Message::select_by_uuid(rb, uuid).await.unwrap()
 }

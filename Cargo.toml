@@ -11,6 +11,9 @@ configuration = { git = "https://caijh@bitbucket.org/bytebinary/configuration-rs
 registration = { git = "https://caijh@bitbucket.org/bytebinary/registration-rs.git" }
 database = { git = "https://caijh@bitbucket.org/bytebinary/database-rs.git" }
 redis_util = { git = "https://caijh@bitbucket.org/bytebinary/redis-util-rs.git" }
+# context
+context = {git = "https://caijh@bitbucket.org/bytebinary/context-rs.git"}
+
 futures = "0.3.30"
 actix-web = "4.5.1"
 chrono = "0.4"

@@ -64,7 +64,7 @@ impl WxCorpService {
             .query(&[("corpsecret", &secret)])
             .send().await.unwrap()
             .json().await.unwrap();
-        let expires = chrono::Utc::now() + chrono::Duration::seconds(res.expires_in);
+        let expires = chrono::Utc::now() + chrono::Duration::try_seconds(res.expires_in).unwrap();
         let token = res.access_token;
         AccessToken {
             access_token: token,

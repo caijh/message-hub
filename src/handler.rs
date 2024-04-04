@@ -2,6 +2,7 @@ use actix_web::{get, HttpResponse, Responder, web};
 use actix_web::dev::ServerHandle;
 use actix_web::web::{Json, Path};
 use configuration::Configuration;
+use context::SERVICES;
 use handlebars::Handlebars;
 use parking_lot::Mutex;
 use serde_derive::{Deserialize, Serialize};
@@ -10,7 +11,6 @@ use tracing::debug;
 use crate::{auth, message, wx_corp};
 use crate::auth::Signature;
 use crate::message::send_by_wx_corp;
-use crate::services::SERVICES;
 use crate::user::UserService;
 
 #[derive(Serialize, Deserialize, Debug)]
