@@ -3,7 +3,7 @@ use actix_web::web::get;
 use clap::{arg, Command, crate_version};
 use configuration::Configuration;
 use handlebars::{DirectorySourceOptions, Handlebars};
-use logger::{Logger, LoggerConfig};
+use logger::Logger;
 use tracing::{error, info};
 
 use message_hub::handler;
@@ -32,8 +32,7 @@ async fn main() -> std::io::Result<()> {
 
     let config = Configuration::get_config().await.clone();
 
-    let logger_config = LoggerConfig::get_config(&config);
-    Logger::init_logger(&logger_config);
+    Logger::init_logger(&config);
 
     // 初始化Service
     init_services(&config).await.expect("init services failed");
