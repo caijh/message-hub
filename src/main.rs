@@ -15,7 +15,7 @@ async fn main() -> std::io::Result<()> {
     // 参数处理
     let matches = Command::new("Server Tan")
         .version(crate_version!())
-        .author("caijunhui. <caijh@gmail.com>")
+        .author("junhuitsai. <caiqizhe@gmail.com>")
         .about("Message Hub...")
         .args(&[
             arg!(-c --config <FILE> "Sets a custom config file")
