@@ -43,7 +43,7 @@ async fn main() -> std::io::Result<()> {
     info!("Listening on https://{}", addr);
     let mut hbars = Handlebars::new();
     hbars
-        .register_templates_directory("./static/", DirectorySourceOptions { tpl_extension: ".html".to_string(), hidden: false, temporary: false })
+        .register_templates_directory("./static", DirectorySourceOptions { tpl_extension: ".html".to_owned(), hidden: false, temporary: false })
         .unwrap();
     let hbars_ref = web::Data::new(hbars);
     let server = HttpServer::new({

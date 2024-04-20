@@ -43,3 +43,4 @@ parking_lot = "0.12.1"
 tracing = "0.1.40"
 cbc = { version = "0.1.2", features = ["alloc"] }
 redis = "0.24.0"
+actix-web-lab = "0.20.2"

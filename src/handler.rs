@@ -1,6 +1,7 @@
 use actix_web::{get, HttpResponse, Responder, web};
 use actix_web::dev::ServerHandle;
 use actix_web::web::{Json, Path};
+use actix_web_lab::respond::Html;
 use configuration::Configuration;
 use context::SERVICES;
 use handlebars::Handlebars;
@@ -91,7 +92,7 @@ pub async fn handle_send_message(user: Path<User>, query: web::Query<Signature>,
 pub async fn handler_message_detail(hb: web::Data<Handlebars<'_>>, id: Path<String>) -> impl Responder {
     let message = message::get_message_detail(&id).await;
     let body = hb.render("message", &message).unwrap();
-    HttpResponse::Ok().body(body)
+    Html(body)
 }
 
 
