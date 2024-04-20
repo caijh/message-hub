@@ -10,7 +10,9 @@ logger = { git = "https://caijh@bitbucket.org/bytebinary/logger-rs.git" }
 configuration = { git = "https://caijh@bitbucket.org/bytebinary/configuration-rs.git" }
 registration = { git = "https://caijh@bitbucket.org/bytebinary/registration-rs.git" }
 database = { git = "https://caijh@bitbucket.org/bytebinary/database-rs.git" }
-redis_util = { git = "https://caijh@bitbucket.org/bytebinary/redis-util-rs.git" }
+# redis
+redis = "0.24.0"
+redis-io = { git = "https://caijh@bitbucket.org/bytebinary/redis-io-rs.git" }
 # context
 context = {git = "https://caijh@bitbucket.org/bytebinary/context-rs.git"}
 
@@ -42,5 +44,4 @@ url = "2.5.0"
 parking_lot = "0.12.1"
 tracing = "0.1.40"
 cbc = { version = "0.1.2", features = ["alloc"] }
-redis = "0.24.0"
 actix-web-lab = "0.20.2"

@@ -3,7 +3,7 @@ use std::error::Error;
 use config::Config;
 use context::SERVICES;
 use database::DbService;
-use redis_util::{Redis, RedisConfig};
+use redis_io::{Redis, RedisConfig};
 
 use crate::user::UserService;
 use crate::wx_corp::WxCorpService;

@@ -8,7 +8,7 @@ use cbc::cipher::{BlockDecryptMut, KeyIvInit};
 use cbc::Decryptor;
 use configuration::Configuration;
 use redis::Commands;
-use redis_util::Redis;
+use redis_io::Redis;
 use serde_derive::{Deserialize, Serialize};
 use sha1_smol::Sha1;
 

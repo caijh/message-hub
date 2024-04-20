@@ -2,7 +2,7 @@ use std::error::Error;
 use context::SERVICES;
 
 use redis::Commands;
-use redis_util::Redis;
+use redis_io::Redis;
 use serde_derive::{Deserialize, Serialize};
 
 use crate::wx_corp::WxCorpService;
