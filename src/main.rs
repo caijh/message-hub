@@ -25,7 +25,7 @@ async fn main() -> std::io::Result<()> {
     let config = "./config.toml".to_string();
     let config = matches.get_one::<String>("config").unwrap_or(&config);
     Configuration::load(config).await.expect("Load config failed");
-    let config = Configuration::get_config().await.clone();
+    let config = Configuration::get_config().await;
 
     Logger::init_logger(&config);
 
