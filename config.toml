@@ -1,5 +1,4 @@
 # 监听地址
-listen = "0.0.0.0:8800"
 wxcorp_id = "wx5acd74cc05ef6132"
 wxcorp_secret = "Os5rC2-aEGC84V1wcLsjpCOadVXrUknQvj_1NC_ws_E"
 wxcorp_app_id = "1000002"
@@ -12,3 +11,6 @@ database_user = "root"
 database_password = ""
 database_name = "messages"
 database_type = "mysql"
+
+[server]
+port = 8080
