@@ -3,7 +3,7 @@ use std::error::Error;
 use config::Config;
 use context::SERVICES;
 use database::DbService;
-use redis_io::{Redis, RedisConfig};
+use redis_io::Redis;
 
 use crate::user::UserService;
 use crate::wx_corp::WxCorpService;
@@ -18,8 +18,7 @@ pub async fn init_services(config: &Config) -> Result<(), Box<dyn Error>> {
     let wx_corp = WxCorpService::default();
     SERVICES.set(wx_corp);
 
-    let redis_config = RedisConfig::get_redis_config(config);
-    Redis::init(&redis_config);
+    Redis::init_from_config(config);
 
     Ok(())
 }

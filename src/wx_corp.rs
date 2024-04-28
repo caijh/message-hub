@@ -74,7 +74,7 @@ impl WxCorpService {
 
     pub async fn get_access_token(&self) -> Result<AccessToken, Box<dyn Error>> {
         // 尝试从数据库获取access token
-        let client = Redis::get_redis_client();
+        let client = Redis::get_client();
         let mut con = client.get_connection()?;
         let key = "App:MessageHub:AccessToken:WxCorp";
         let token = con.get::<&str, Option<String>>(key)?;
@@ -100,7 +100,7 @@ impl WxCorpService {
     async fn update_access_token(&self) -> AccessToken {
         let new_token = self.get_access_token_internal().await;
         let json_string = serde_json::to_string(&new_token).unwrap();
-        let client = Redis::get_redis_client();
+        let client = Redis::get_client();
         let mut con = client.get_connection().expect("");
         let key = "App:MessageHub:AccessToken:WxCorp";
         con.set_ex::<&str, String, String>(key, json_string, 60 * 60 * 24).expect("Fail to update access token");

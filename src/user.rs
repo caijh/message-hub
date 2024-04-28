@@ -55,7 +55,7 @@ impl UserService {
     }
 
     pub async fn get_user(&self, id: &str) -> Result<User, Box<dyn Error>> {
-        let client = Redis::get_redis_client();
+        let client = Redis::get_client();
         let mut con = client.get_connection()?;
         let key = "App:Message:U:".to_string() + id;
         let user = con.get::<&str, Option<String>>(&key)?;
