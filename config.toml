@@ -30,7 +30,7 @@ password = "redis"
 address = "http://127.0.0.1:8500"
 token = ""
 [service.check]
-address = "http://127.0.0.1:8082/health/check"
+address = "http://127.0.0.1:8080/health/check"
 interval = "30s"
 
 [logger]
