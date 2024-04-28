@@ -31,11 +31,10 @@ async fn main() -> std::io::Result<()> {
 
     // 初始化Service
     init_services(&config).await.expect("init services failed");
-    
+
     let server_config = ServerConfig::get_config(&config);
     let addr = format!("0.0.0.0:{}", server_config.port);
-    info!("Listening on {}", addr);
-    
+
     let mut hbars = Handlebars::new();
     hbars
         .register_templates_directory("./static", DirectorySourceOptions { tpl_extension: ".html".to_owned(), hidden: false, temporary: false })
@@ -55,9 +54,11 @@ async fn main() -> std::io::Result<()> {
                 .route("/health/check", get().to(handler::health_check))
         }
     })
-        .bind(addr)?
+        .bind(&addr)?
         .run();
 
+    info!("Listening on {}", addr);
+    
     // register the server handle with the stop handle
     stop_handle.register(server.handle());
 
