@@ -9,14 +9,11 @@ use crate::user::UserService;
 use crate::wx_corp::WxCorpService;
 
 pub async fn init_services(config: &Config) -> Result<(), Box<dyn Error>> {
-    let database_service = DbService::create(config).await;
-    SERVICES.set(database_service);
+    SERVICES.set(DbService::create(config).await);
 
-    let user_service = UserService::default();
-    SERVICES.set(user_service);
+    SERVICES.set(UserService::default());
 
-    let wx_corp = WxCorpService::default();
-    SERVICES.set(wx_corp);
+    SERVICES.set(WxCorpService::default());
 
     Redis::init_from_config(config);
 

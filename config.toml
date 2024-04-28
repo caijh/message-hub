@@ -4,13 +4,14 @@ wxcorp_secret = "Os5rC2-aEGC84V1wcLsjpCOadVXrUknQvj_1NC_ws_E"
 wxcorp_app_id = "1000002"
 wxcorp_token = "0o9ABiAx3"
 wxcorp_encoding_aes_key= "IjK5lstPxlQquUYn6fiPJc2nwaxdqUrSMg5ElVYBWzA"
-db_path = "db"
-database_host = "140.238.38.80"
-database_port = 3306
-database_user = "root"
-database_password = ""
-database_name = "messages"
-database_type = "mysql"
 
 [server]
 port = 8080
+
+[database]
+kind = "mysql"
+host = "127.0.0.1"
+port = 3306
+user = "root"
+password = "123456"
+name = "messages"
