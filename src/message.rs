@@ -1,9 +1,9 @@
 use std::ops::Not;
-use context::SERVICES;
 
+use context::SERVICES;
 use database::DbService;
-use rbatis::{crud, impl_select};
 use rbatis::rbdc::datetime::DateTime;
+use rbatis::{crud, impl_select};
 use serde_derive::{Deserialize, Serialize};
 
 use crate::wx_corp::{SendMessageResult, WxCorpService};
@@ -59,13 +59,17 @@ impl TextCardMessage {
             msgtype: "textcard".to_string(),
             agentid: app_id.to_string(),
             textcard: TextCard {
-                title: "设备通知".to_string(),
-                description: format!("<div class=\"normal\">通知内容: {}</div><div class=\"normal\">{}</div><div class=\"gray\">通知时间：{}</div>",
-                                     message.title.clone().unwrap_or_default(),
-                                     message.content.clone().unwrap(),
-                                     chrono::Local::now().format("%Y-%m-%d %H:%M:%S")
+                title: message.title.clone().unwrap_or_default(),
+                description: format!(
+                    "<div class=\"normal\">{}</div><div class=\"gray\">通知时间：{}</div>",
+                    message.content.clone().unwrap(),
+                    chrono::Local::now().format("%Y-%m-%d %H:%M:%S")
                 ),
-                url: format!("https://{}/message/{}", domain, message.uuid.clone().unwrap()),
+                url: format!(
+                    "https://{}/message/{}",
+                    domain,
+                    message.uuid.clone().unwrap()
+                ),
                 btntxt: "查看详情".to_string(),
             },
             enable_id_trans: 0,
@@ -75,7 +79,13 @@ impl TextCardMessage {
     }
 }
 
-pub async fn send_by_wx_corp(domain: &str, app_id: &str, username: &str, title: &str, msg: &str) -> String {
+pub async fn send_by_wx_corp(
+    domain: &str,
+    app_id: &str,
+    username: &str,
+    title: &str,
+    msg: &str,
+) -> String {
     let message = Message {
         id: None,
         uuid: Some(uuid::Uuid::new_v4().to_string()),

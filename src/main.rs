@@ -13,7 +13,7 @@ use message_hub::services::init_services;
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     // 参数处理
-    let matches = Command::new("Server Tan")
+    let matches = Command::new("Message Server")
         .version(crate_version!())
         .author("junhuitsai. <caiqizhe@gmail.com>")
         .about("Message Hub...")
@@ -77,7 +77,7 @@ async fn main() -> std::io::Result<()> {
     stop_handle.register(server.handle());
 
     // Register with Consul
-    if let Err(err) = registration::register(&config).await {
+    if let Err(err) = registration::do_register(&config).await {
         error!("Failed to register with Consul: {}", err);
         // Shut down Actix Web server if Consul registration fails
         stop_handle.stop(true).await;
