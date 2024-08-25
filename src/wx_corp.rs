@@ -1,9 +1,7 @@
-use std::error::Error;
-
-use aes::Aes256;
 use aes::cipher::block_padding::Pkcs7;
-use base64::{alphabet, Engine};
+use aes::Aes256;
 use base64::engine::GeneralPurpose;
+use base64::{alphabet, Engine};
 use cbc::cipher::{BlockDecryptMut, KeyIvInit};
 use cbc::Decryptor;
 use configuration::Configuration;
@@ -11,6 +9,7 @@ use redis::Commands;
 use redis_io::Redis;
 use serde_derive::{Deserialize, Serialize};
 use sha1_smol::Sha1;
+use std::error::Error;
 
 use crate::auth::AccessToken;
 
@@ -51,7 +50,6 @@ pub struct DecryptMessage {
 #[derive(Default)]
 pub struct WxCorpService {}
 
-
 impl WxCorpService {
     async fn get_access_token_internal(&self) -> AccessToken {
         let config = Configuration::get_config().await;
@@ -62,8 +60,12 @@ impl WxCorpService {
             .get("https://qyapi.weixin.qq.com/cgi-bin/gettoken")
             .query(&[("corpid", &corpid)])
             .query(&[("corpsecret", &secret)])
-            .send().await.unwrap()
-            .json().await.unwrap();
+            .send()
+            .await
+            .unwrap()
+            .json()
+            .await
+            .unwrap();
         let expires = chrono::Utc::now() + chrono::Duration::try_seconds(res.expires_in).unwrap();
         let token = res.access_token;
         AccessToken {
@@ -103,7 +105,8 @@ impl WxCorpService {
         let client = Redis::get_client();
         let mut con = client.get_connection().expect("");
         let key = "App:MessageHub:AccessToken:WxCorp";
-        con.set_ex::<&str, String, String>(key, json_string, 60 * 60 * 24).expect("Fail to update access token");
+        con.set_ex::<&str, String, String>(key, json_string, 60 * 60 * 24)
+            .expect("Fail to update access token");
         new_token
     }
 
@@ -114,13 +117,14 @@ impl WxCorpService {
             .post("https://qyapi.weixin.qq.com/cgi-bin/message/send")
             .query(&[("access_token", &access_token)])
             .body(body.to_string())
-            .send().await;
+            .send()
+            .await;
         match result {
             Ok(resp) => {
                 let json: SendMessageResult = resp.json().await.unwrap();
                 Ok(json)
             }
-            Err(e) => Err(e.into())
+            Err(e) => Err(e.into()),
         }
     }
 }
@@ -132,7 +136,7 @@ pub fn verify_url(
     nonce: &str,
     echo_str: &str,
     aes_key: &str,
-) -> Result<String, String> {
+) -> Result<String, Box<dyn Error>> {
     // 校验签名
     let mut args: Vec<&str> = vec![token, time_stamp, nonce, echo_str];
     args.sort();
@@ -142,12 +146,16 @@ pub fn verify_url(
     let signature = hasher.digest().to_string();
     tracing::info!("Calculated signature: {}", signature);
     if signature != msg_signature {
-        return Err("AesException.ValidateSignatureError".to_string());
+        return Err("AesException.ValidateSignatureError".into());
     }
 
     let result = decrypt(aes_key, echo_str);
 
-    String::from_utf8(result.content.into_bytes()).map_err(|_| "Utf8DecodingError".to_string())
+    let result = String::from_utf8(result.content.into_bytes());
+    match result {
+        Ok(s) => Ok(s),
+        Err(e) => Err(e.into()),
+    }
 }
 
 pub fn decrypt(aes_key: &str, text: &str) -> DecryptMessage {
@@ -174,4 +182,3 @@ pub fn decrypt(aes_key: &str, text: &str) -> DecryptMessage {
         from_receive_id: receive_id,
     }
 }
-

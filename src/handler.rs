@@ -1,18 +1,19 @@
-use actix_web::{get, HttpResponse, Responder, web};
-use actix_web::dev::ServerHandle;
-use actix_web::web::{Json, Path};
-use actix_web_lab::respond::Html;
-use configuration::Configuration;
-use context::SERVICES;
-use handlebars::Handlebars;
-use parking_lot::Mutex;
+use application::application::APPLICATION_CONTEXT;
+use application::environment::{ApplicationEnvironment, Environment};
+use askama::Template;
+use axum::extract::{Path, Query};
+use axum::http::StatusCode;
+use axum::response::{Html, IntoResponse, Response};
+use axum::Json;
 use serde_derive::{Deserialize, Serialize};
+use std::error::Error;
 use tracing::debug;
+use web::response::RespBody;
 
-use crate::{auth, message, wx_corp};
 use crate::auth::Signature;
-use crate::message::send_by_wx_corp;
+use crate::message_svc::send_by_wx_corp;
 use crate::user::UserService;
+use crate::{auth, message_svc, wx_corp};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct WxCorpJoinValidate {
@@ -23,104 +24,118 @@ pub struct WxCorpJoinValidate {
     echo_str: String,
 }
 
-#[derive(Deserialize, Debug)]
-pub struct User {
-    username: String,
-}
-
 #[derive(Debug, Serialize, Deserialize)]
 pub struct MsgReqBody {
     pub title: Option<String>,
     pub content: String,
 }
 
-pub async fn do_get_wx_corp_receive(query: web::Query<WxCorpJoinValidate>) -> impl Responder {
+pub async fn do_get_wx_corp_receive(Query(params): Query<WxCorpJoinValidate>) -> impl IntoResponse {
     debug!("get /");
-    debug!("query:{:?}", query);
+    debug!("query:{:?}", params);
 
-    let msg_signature = &query.msg_signature;
-    let time_stamp = &query.timestamp;
-    let nonce = &query.nonce;
-    let echo_str = &query.echo_str;
-    let config = Configuration::get_config().await;
-    let token = config.get_string("wxcorp_token").unwrap();
-    let aes_key = config.get_string("wxcorp_encoding_aes_key").unwrap();
-    let result = wx_corp::verify_url(msg_signature, token.as_str(), time_stamp, nonce, echo_str, aes_key.as_str());
-    match result {
-        Ok(r) => HttpResponse::Ok().body(r),
-        Err(_) => HttpResponse::InternalServerError().finish()
-    }
+    let msg_signature = &params.msg_signature;
+    let time_stamp = &params.timestamp;
+    let nonce = &params.nonce;
+    let echo_str = &params.echo_str;
+    let application_context = APPLICATION_CONTEXT.read().await;
+    let environment = application_context.environment.read().await;
+    let token = environment.get_property::<String>("wxcorp_token").unwrap();
+    let aes_key = environment
+        .get_property::<String>("wxcorp_encoding_aes_key")
+        .unwrap();
+    let result = wx_corp::verify_url(
+        msg_signature,
+        token.as_str(),
+        time_stamp,
+        nonce,
+        echo_str,
+        aes_key.as_str(),
+    );
+    RespBody::from_result(&result).response()
 }
 
-
-pub async fn do_post_wx_corp_receive() -> impl Responder {
-    HttpResponse::Ok()
+pub async fn do_post_wx_corp_receive() -> impl IntoResponse {
+    RespBody::from(&"".to_string()).response()
 }
 
-pub async fn handle_send_message(user: Path<User>, query: web::Query<Signature>, message: Json<MsgReqBody>) -> impl Responder {
-    debug!("POST /send/{}", user.username);
+pub async fn handle_send_message(
+    Path(username): Path<String>,
+    Query(query): Query<Signature>,
+    Json(message): Json<MsgReqBody>,
+) -> impl IntoResponse {
+    debug!("POST /send/{}", username);
     let signature = &query.signature;
     let timestamp = &query.timestamp;
     let nonce = &query.nonce;
-    let title = message.title.clone().unwrap_or_default();
     let content = message.content.as_str();
-    let config = Configuration::get_config().await.clone();
-    let token = config.get_string("wxcorp_token").unwrap();
+    let application_context = APPLICATION_CONTEXT.read().await;
+    let environment = application_context.environment.read().await;
+    let token = environment.get_property::<String>("wxcorp_token").unwrap();
     if !auth::check_signature(signature, token.as_str(), timestamp, nonce, content) {
         debug!("auth failed!");
-        return HttpResponse::Forbidden().finish();
+        return (StatusCode::FORBIDDEN, "auth failed").into_response();
     }
     debug!("auth pass!");
     debug!("msg:{}", message.content);
 
-    let username = &user.username;
-    let user = SERVICES.get::<UserService>().get_user(username).await;
-    match user {
-        Ok(_) => {
-            let app_id = config.get_string("wxcorp_app_id").unwrap();
-            let domain = config.get_string("server.domain").unwrap();
-            let response = send_by_wx_corp(&domain,app_id.as_str(), username, title.as_str(), content).await;
-            HttpResponse::Ok().body(response)
+    let title = message.title.clone().unwrap_or_default();
+    let user = send_to_user(&username, &title, content, &environment).await;
+    RespBody::from_result(&user).response()
+}
+
+async fn send_to_user(
+    username: &str,
+    title: &str,
+    content: &str,
+    environment: &ApplicationEnvironment,
+) -> Result<String, Box<dyn Error>> {
+    let application_context = APPLICATION_CONTEXT.read().await;
+    let user_service = application_context.context.get::<UserService>();
+    let _user = user_service.get_user(&username).await?;
+
+    let app_id = environment.get_property::<String>("wxcorp_app_id").unwrap();
+    let domain = environment.get_property::<String>("server.domain").unwrap();
+    let result = send_by_wx_corp(&domain, app_id.as_str(), &username, title, content).await;
+    match result {
+        Ok(s) => Ok(s),
+        Err(e) => Err(e.into()),
+    }
+}
+
+#[derive(Template)]
+#[template(path = "message.html")]
+struct MessageTemplate {
+    title: String,
+    content: String,
+    send_time: rbatis::rbdc::DateTime,
+}
+
+pub async fn handle_message_detail(Path(id): Path<String>) -> impl IntoResponse {
+    let message = message_svc::get_message_detail(&id).await;
+    let message = message.unwrap();
+    let template = MessageTemplate {
+        title: message.title.unwrap(),
+        content: message.content.unwrap(),
+        send_time: message.send_time.unwrap(),
+    };
+    HtmlTemplate(template)
+}
+
+pub struct HtmlTemplate<T>(pub T);
+
+impl<T> IntoResponse for HtmlTemplate<T>
+where
+    T: Template,
+{
+    fn into_response(self) -> Response {
+        match self.0.render() {
+            Ok(html) => Html(html).into_response(),
+            Err(err) => (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("Failed to render template. Error: {err}"),
+            )
+                .into_response(),
         }
-        Err(e) => {
-            debug!("Get user info error, {:?}", e);
-            HttpResponse::Forbidden().finish()
-        }
     }
-}
-
-pub async fn handler_message_detail(hb: web::Data<Handlebars<'_>>, id: Path<String>) -> impl Responder {
-    let message = message::get_message_detail(&id).await;
-    let body = hb.render("message", &message).unwrap();
-    Html(body)
-}
-
-
-#[get("/stop/{graceful}")]
-async fn stop(graceful: Path<bool>, stop_handle: web::Data<StopHandle>) -> HttpResponse {
-    stop_handle.stop(graceful.to_owned()).await;
-    HttpResponse::NoContent().finish()
-}
-
-#[derive(Default)]
-pub struct StopHandle {
-    inner: Mutex<Option<ServerHandle>>,
-}
-
-impl StopHandle {
-    /// Sets the server handle to stop.
-    pub fn register(&self, handle: ServerHandle) {
-        *self.inner.lock() = Some(handle);
-    }
-
-    /// Sends stop signal through contained server handle.
-    pub async fn stop(&self, graceful: bool) {
-        let _ = registration::deregister().await;
-        #[allow(clippy::let_underscore_future)]
-            let _ = self.inner.lock().as_ref().unwrap().stop(graceful);
-    }
-}
-
-pub async fn health_check() -> HttpResponse {
-    HttpResponse::Ok().body("OK")
 }
