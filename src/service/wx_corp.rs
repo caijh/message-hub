@@ -12,7 +12,8 @@ use serde_json::to_string;
 use sha1_smol::Sha1;
 use std::error::Error;
 
-use crate::auth::AccessToken;
+use super::auth::AccessToken;
+
 
 type AesCbcDec = Decryptor<Aes256>;
 

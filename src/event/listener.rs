@@ -7,7 +7,8 @@ use application::{
 use database_common::connection::DbConnection;
 use database_mysql_seaorm::Dao;
 
-use crate::{user::UserService, wx_corp::WxCorpService};
+use crate::service::user::UserService;
+use crate::service::wx_corp::WxCorpService;
 use async_trait::async_trait;
 
 pub struct ApplicationContextInitializedListener;

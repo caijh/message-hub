@@ -5,7 +5,7 @@ use redis::Commands;
 use redis_io::Redis;
 use serde_derive::{Deserialize, Serialize};
 
-use crate::wx_corp::WxCorpService;
+use super::wx_corp::WxCorpService;
 
 #[derive(Debug, Deserialize, Clone, Serialize)]
 pub struct User {

@@ -5,9 +5,7 @@ use axum::{
 };
 use web::health::health_routers;
 
-use crate::handler::{
-    do_get_wx_corp_receive, do_post_wx_corp_receive, handle_message_detail, handle_send_message,
-};
+use crate::controller::index::{do_get_wx_corp_receive, do_post_wx_corp_receive, handle_message_detail, handle_send_message};
 
 pub struct RouterContextInitializer;
 

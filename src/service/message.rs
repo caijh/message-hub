@@ -10,10 +10,8 @@ use sea_orm::{
 use serde_derive::{Deserialize, Serialize};
 
 use crate::entity::message_receiver;
-use crate::{
-    entity::message,
-    wx_corp::{SendMessageResult, WxCorpService},
-};
+use crate::service::wx_corp::WxCorpService;
+use crate::entity::message;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct TextCardMessage {
@@ -87,24 +85,13 @@ pub async fn send_by_wx_corp(
         .send(&json)
         .await;
 
-    let mut response = SendMessageResult {
-        errcode: -1,
-        errmsg: "消息发送失败".to_string(),
-        invaliduser: None,
-        invalidparty: None,
-        invalidtag: None,
-        unlicenseduser: None,
-        msgid: None,
-        response_code: None,
-    };
     match result {
         Ok(result) => {
-            response = result;
+            let response = serde_json::to_string(&result)?;
+            Ok(response)
         }
-        Err(_) => {}
+        Err(e) => {Err(e.into())}
     }
-    let response = serde_json::to_string(&response)?;
-    Ok(response)
 }
 
 pub async fn save_message_record(

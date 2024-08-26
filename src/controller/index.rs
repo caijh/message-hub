@@ -11,11 +11,10 @@ use std::error::Error;
 use tracing::debug;
 use web::response::RespBody;
 
-use crate::auth::Signature;
-use crate::message_svc::{save_message_record, send_by_wx_corp};
-use crate::user::UserService;
-use crate::{auth, message_svc, wx_corp};
-
+use crate::service::auth::{self, Signature};
+use crate::service::message::{get_message_detail, save_message_record, send_by_wx_corp};
+use crate::service::user::UserService;
+use crate::service::wx_corp;
 #[derive(Serialize, Deserialize, Debug)]
 pub struct WxCorpJoinValidate {
     msg_signature: String,
@@ -120,7 +119,7 @@ struct MessageTemplate {
 }
 
 pub async fn handle_message_detail(Path(id): Path<String>) -> impl IntoResponse {
-    let message = message_svc::get_message_detail(&id).await.unwrap();
+    let message = get_message_detail(&id).await.unwrap();
     let message = message.unwrap();
     let template = MessageTemplate {
         title: message.title.unwrap(),
