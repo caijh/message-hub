@@ -24,12 +24,13 @@ impl ApplicationListener for ApplicationContextInitializedListener {
         _event: &dyn application::application_event::ApplicationEvent,
     ) -> Result<(), Box<dyn std::error::Error>> {
         let application_context = application.get_application_context();
+
         let environment = application_context.get_environment();
         let db_connection = environment
             .get_property::<DbConnection>("database")
             .unwrap();
-        let database_service = Dao::new(db_connection).await;
-        application_context.context.set(database_service);
+        let dao = Dao::new(db_connection).await;
+        application_context.context.set(dao);
 
         application_context.context.set(UserService::default());
 
