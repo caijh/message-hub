@@ -8,6 +8,7 @@ use configuration::Configuration;
 use redis::Commands;
 use redis_io::Redis;
 use serde_derive::{Deserialize, Serialize};
+use serde_json::to_string;
 use sha1_smol::Sha1;
 use std::error::Error;
 
@@ -122,7 +123,12 @@ impl WxCorpService {
         match result {
             Ok(resp) => {
                 let json: SendMessageResult = resp.json().await.unwrap();
-                Ok(json)
+                if json.is_success() {
+                    Ok(json)
+                } else {
+                    let err_info = to_string(&json)?;
+                    Err(err_info.into())
+                }
             }
             Err(e) => Err(e.into()),
         }

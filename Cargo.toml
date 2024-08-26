@@ -45,7 +45,7 @@ tracing = "0.1.40"
 cbc = { version = "0.1.2", features = ["alloc"] }
 tokio = { version = "1.37.0", features = ["full"] }
 axum = "0.7.5"
-#web = {git = "https://caijh@bitbucket.org/bytebinary/web-rs.git"}
-web = { path = "../../lib-rs/web-rs" }
+web = {git = "https://caijh@bitbucket.org/bytebinary/web-rs.git"}
+#web = { path = "../../lib-rs/web-rs" }
 async-trait = "0.1.80"
 askama = "0.11"

@@ -5,13 +5,14 @@ use axum::extract::{Path, Query};
 use axum::http::StatusCode;
 use axum::response::{Html, IntoResponse, Response};
 use axum::Json;
+use chrono::NaiveDateTime;
 use serde_derive::{Deserialize, Serialize};
 use std::error::Error;
 use tracing::debug;
 use web::response::RespBody;
 
 use crate::auth::Signature;
-use crate::message_svc::send_by_wx_corp;
+use crate::message_svc::{save_message_record, send_by_wx_corp};
 use crate::user::UserService;
 use crate::{auth, message_svc, wx_corp};
 
@@ -96,11 +97,18 @@ async fn send_to_user(
 
     let app_id = environment.get_property::<String>("wxcorp_app_id").unwrap();
     let domain = environment.get_property::<String>("server.domain").unwrap();
-    let result = send_by_wx_corp(&domain, app_id.as_str(), &username, title, content).await;
-    match result {
-        Ok(s) => Ok(s),
-        Err(e) => Err(e.into()),
-    }
+    let message_uuid = uuid::Uuid::new_v4().to_string();
+    let resutl = send_by_wx_corp(
+        &domain,
+        app_id.as_str(),
+        &username,
+        &message_uuid,
+        title,
+        content,
+    )
+    .await?;
+    save_message_record(&message_uuid, title, content, username).await?;
+    Ok(resutl)
 }
 
 #[derive(Template)]
@@ -108,11 +116,11 @@ async fn send_to_user(
 struct MessageTemplate {
     title: String,
     content: String,
-    send_time: rbatis::rbdc::DateTime,
+    send_time: NaiveDateTime,
 }
 
 pub async fn handle_message_detail(Path(id): Path<String>) -> impl IntoResponse {
-    let message = message_svc::get_message_detail(&id).await;
+    let message = message_svc::get_message_detail(&id).await.unwrap();
     let message = message.unwrap();
     let template = MessageTemplate {
         title: message.title.unwrap(),
