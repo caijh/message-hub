@@ -1,6 +1,4 @@
-pub mod wx_corp;
-pub mod auth;
-pub mod message;
-pub mod handler;
-pub mod services;
-pub mod user;
+pub mod entity;
+pub mod service;
+pub mod controller;
+pub mod event;
