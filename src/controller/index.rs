@@ -32,7 +32,7 @@ pub struct MsgReqBody {
 
 pub async fn do_get_wx_corp_receive(Query(params): Query<WxCorpJoinValidate>) -> impl IntoResponse {
     debug!("get /");
-    debug!("query:{:?}", params);
+    debug!("query params: {:?}", params);
 
     let msg_signature = &params.msg_signature;
     let time_stamp = &params.timestamp;
@@ -40,9 +40,9 @@ pub async fn do_get_wx_corp_receive(Query(params): Query<WxCorpJoinValidate>) ->
     let echo_str = &params.echo_str;
     let application_context = APPLICATION_CONTEXT.read().await;
     let environment = application_context.environment.read().await;
-    let token = environment.get_property::<String>("wxcorp_token").unwrap();
+    let token = environment.get_property::<String>("wxcorp.token").unwrap();
     let aes_key = environment
-        .get_property::<String>("wxcorp_encoding_aes_key")
+        .get_property::<String>("wxcorp.encoding_aes_key")
         .unwrap();
     let result = wx_corp::verify_url(
         msg_signature,
@@ -71,7 +71,7 @@ pub async fn handle_send_message(
     let content = message.content.as_str();
     let application_context = APPLICATION_CONTEXT.read().await;
     let environment = application_context.environment.read().await;
-    let token = environment.get_property::<String>("wxcorp_token").unwrap();
+    let token = environment.get_property::<String>("wxcorp.token").unwrap();
     if !auth::check_signature(signature, token.as_str(), timestamp, nonce, content) {
         debug!("auth failed!");
         return (StatusCode::FORBIDDEN, "auth failed").into_response();
@@ -94,7 +94,7 @@ async fn send_to_user(
     let user_service = application_context.context.get::<UserService>();
     let _user = user_service.get_user(&username).await?;
 
-    let app_id = environment.get_property::<String>("wxcorp_app_id").unwrap();
+    let app_id = environment.get_property::<String>("wxcorp.app_id").unwrap();
     let domain = environment.get_property::<String>("server.domain").unwrap();
     let message_uuid = uuid::Uuid::new_v4().to_string();
     let resutl = send_by_wx_corp(
