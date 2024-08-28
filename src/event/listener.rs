@@ -6,6 +6,7 @@ use application::{
 };
 use database_common::connection::DbConnection;
 use database_mysql_seaorm::Dao;
+use redis_io::{Redis, RedisConfig};
 
 use crate::service::user::UserService;
 use crate::service::wx_corp::WxCorpService;
@@ -32,6 +33,11 @@ impl ApplicationListener for ApplicationContextInitializedListener {
             .unwrap();
         let dao = Dao::new(db_connection).await;
         application_context.context.set(dao);
+
+        let redis_config = environment.get_property::<RedisConfig>("redis");
+        if redis_config.is_some() {
+            Redis::init(&redis_config.unwrap())
+        }
 
         application_context.context.set(UserService::default());
 
