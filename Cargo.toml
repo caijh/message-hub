@@ -8,7 +8,6 @@ edition = "2021"
 application = { git = "https://caijh@bitbucket.org/bytebinary/application-rs.git" }
 util = { git = "https://caijh@bitbucket.org/bytebinary/util-rs.git" }
 configuration = { git = "https://caijh@bitbucket.org/bytebinary/configuration-rs.git" }
-registration = { git = "https://caijh@bitbucket.org/bytebinary/registration-rs.git" }
 database-common = { git = "https://caijh@bitbucket.org/bytebinary/database-common-rs.git" }
 # database = { git = "https://caijh@bitbucket.org/bytebinary/database-rs.git" }
 database-mysql-seaorm = { git = "https://caijh@bitbucket.org/bytebinary/database-mysql-seaorm-rs.git" }
@@ -29,10 +28,6 @@ uuid = { version = "1.8.0", features = ["v4"] }
 sha1_smol = "1.0.0"
 base64 = "0.21.7"
 aes = "0.8.4"
-handlebars = { version = "5.1.2", features = ["dir_source"] }
-#rbs = "4.5.13"
-#rbatis = "4.5.21"
-#rbdc-mysql = "4.5.7"
 state = "0.6.0"
 serde = "1.0.198"
 serde_derive = "1.0.198"
