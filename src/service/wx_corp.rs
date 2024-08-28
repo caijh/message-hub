@@ -55,8 +55,8 @@ pub struct WxCorpService {}
 impl WxCorpService {
     async fn get_access_token_internal(&self) -> AccessToken {
         let config = Configuration::get_config().await;
-        let corpid = config.get_string("wxcorp_id").unwrap();
-        let secret = config.get_string("wxcorp_secret").unwrap();
+        let corpid = config.get_string("wxcorp.id").unwrap();
+        let secret = config.get_string("wxcorp.secret").unwrap();
         let client = reqwest::Client::new();
         let res: GetTokenResult = client
             .get("https://qyapi.weixin.qq.com/cgi-bin/gettoken")
