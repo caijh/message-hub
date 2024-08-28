@@ -1,10 +1,10 @@
 use aes::cipher::block_padding::Pkcs7;
 use aes::Aes256;
+use application::application::APPLICATION_CONTEXT;
 use base64::engine::GeneralPurpose;
 use base64::{alphabet, Engine};
 use cbc::cipher::{BlockDecryptMut, KeyIvInit};
 use cbc::Decryptor;
-use configuration::Configuration;
 use redis::Commands;
 use redis_io::Redis;
 use serde_derive::{Deserialize, Serialize};
@@ -13,7 +13,7 @@ use sha1_smol::Sha1;
 use std::error::Error;
 
 use super::auth::AccessToken;
-
+use application::environment::Environment;
 
 type AesCbcDec = Decryptor<Aes256>;
 
@@ -54,9 +54,10 @@ pub struct WxCorpService {}
 
 impl WxCorpService {
     async fn get_access_token_internal(&self) -> AccessToken {
-        let config = Configuration::get_config().await;
-        let corpid = config.get_string("wxcorp.id").unwrap();
-        let secret = config.get_string("wxcorp.secret").unwrap();
+        let application_context = APPLICATION_CONTEXT.read().await;
+        let environment = application_context.environment.read().await;
+        let corpid = environment.get_property::<String>("wxcorp.id").unwrap();
+        let secret = environment.get_property::<String>("wxcorp.secret").unwrap();
         let client = reqwest::Client::new();
         let res: GetTokenResult = client
             .get("https://qyapi.weixin.qq.com/cgi-bin/gettoken")
