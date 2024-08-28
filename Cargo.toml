@@ -7,7 +7,6 @@ edition = "2021"
 [dependencies]
 application = { git = "https://caijh@bitbucket.org/bytebinary/application-rs.git" }
 util = { git = "https://caijh@bitbucket.org/bytebinary/util-rs.git" }
-configuration = { git = "https://caijh@bitbucket.org/bytebinary/configuration-rs.git" }
 database-common = { git = "https://caijh@bitbucket.org/bytebinary/database-common-rs.git" }
 # database = { git = "https://caijh@bitbucket.org/bytebinary/database-rs.git" }
 database-mysql-seaorm = { git = "https://caijh@bitbucket.org/bytebinary/database-mysql-seaorm-rs.git" }
