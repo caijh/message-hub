@@ -1,6 +1,7 @@
 use aes::cipher::block_padding::Pkcs7;
 use aes::Aes256;
 use application::application::APPLICATION_CONTEXT;
+use application::context::application_context::ApplicationContext;
 use base64::engine::GeneralPurpose;
 use base64::{alphabet, Engine};
 use cbc::cipher::{BlockDecryptMut, KeyIvInit};
@@ -55,7 +56,7 @@ pub struct WxCorpService {}
 impl WxCorpService {
     async fn get_access_token_internal(&self) -> AccessToken {
         let application_context = APPLICATION_CONTEXT.read().await;
-        let environment = application_context.environment.read().await;
+        let environment = application_context.get_environment().await;
         let corpid = environment.get_property::<String>("wxcorp.id").unwrap();
         let secret = environment.get_property::<String>("wxcorp.secret").unwrap();
         let client = reqwest::Client::new();

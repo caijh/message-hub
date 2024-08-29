@@ -1,9 +1,8 @@
-use application::application::Application;
-use application::application_context::ApplicationContext;
+use application::application::{Application, RustApplication};
+use application::context::application_context::ApplicationContext;
+use application::context::application_event::{ApplicationEvenType, ApplicationEvent};
+use application::context::application_listener::ApplicationListener;
 use application::environment::Environment;
-use application::{
-    application_event::ApplicationEvenType, application_listener::ApplicationListener,
-};
 use database_common::connection::DbConnection;
 use database_mysql_seaorm::Dao;
 use redis_io::{Redis, RedisConfig};
@@ -16,18 +15,18 @@ pub struct ApplicationContextInitializedListener;
 
 #[async_trait]
 impl ApplicationListener for ApplicationContextInitializedListener {
-    fn is_support(&self, event: &dyn application::application_event::ApplicationEvent) -> bool {
+    fn is_support(&self, event: &dyn ApplicationEvent) -> bool {
         event.get_event_type() == ApplicationEvenType::ContextInitialized
     }
 
     async fn on_application_event(
         &self,
-        application: &application::application::RustApplication,
-        _event: &dyn application::application_event::ApplicationEvent,
+        application: &RustApplication,
+        _event: &dyn ApplicationEvent,
     ) -> Result<(), Box<dyn std::error::Error>> {
         let application_context = application.get_application_context();
 
-        let environment = application_context.get_environment();
+        let environment = application_context.get_environment().await;
         let db_connection = environment
             .get_property::<DbConnection>("database")
             .unwrap();
