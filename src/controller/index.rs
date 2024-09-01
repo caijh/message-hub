@@ -1,5 +1,7 @@
 use application::application::APPLICATION_CONTEXT;
-use application::environment::{ApplicationEnvironment, Environment};
+use application::context::application_context::ApplicationContext;
+use application::env::environment::ApplicationEnvironment;
+use application::env::property_resolver::PropertyResolver;
 use askama::Template;
 use axum::extract::{Path, Query};
 use axum::http::StatusCode;
@@ -39,7 +41,7 @@ pub async fn do_get_wx_corp_receive(Query(params): Query<WxCorpJoinValidate>) ->
     let nonce = &params.nonce;
     let echo_str = &params.echo_str;
     let application_context = APPLICATION_CONTEXT.read().await;
-    let environment = application_context.environment.read().await;
+    let environment = application_context.get_environment().await;
     let token = environment.get_property::<String>("wxcorp.token").unwrap();
     let aes_key = environment
         .get_property::<String>("wxcorp.encoding_aes_key")
@@ -70,7 +72,7 @@ pub async fn handle_send_message(
     let nonce = &query.nonce;
     let content = message.content.as_str();
     let application_context = APPLICATION_CONTEXT.read().await;
-    let environment = application_context.environment.read().await;
+    let environment = application_context.get_environment().await;
     let token = environment.get_property::<String>("wxcorp.token").unwrap();
     if !auth::check_signature(signature, token.as_str(), timestamp, nonce, content) {
         debug!("auth failed!");
