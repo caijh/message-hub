@@ -2,7 +2,7 @@ use application::application::{Application, RustApplication};
 use application::context::application_context::ApplicationContext;
 use application::context::application_event::{ApplicationEvenType, ApplicationEvent};
 use application::context::application_listener::ApplicationListener;
-use application::environment::Environment;
+use application::env::property_resolver::PropertyResolver;
 use database_common::connection::DbConnection;
 use database_mysql_seaorm::Dao;
 use redis_io::{Redis, RedisConfig};

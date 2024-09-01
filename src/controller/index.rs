@@ -1,6 +1,7 @@
 use application::application::APPLICATION_CONTEXT;
 use application::context::application_context::ApplicationContext;
-use application::environment::{ApplicationEnvironment, Environment};
+use application::env::environment::ApplicationEnvironment;
+use application::env::property_resolver::PropertyResolver;
 use askama::Template;
 use axum::extract::{Path, Query};
 use axum::http::StatusCode;

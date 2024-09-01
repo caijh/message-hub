@@ -2,6 +2,7 @@ use aes::cipher::block_padding::Pkcs7;
 use aes::Aes256;
 use application::application::APPLICATION_CONTEXT;
 use application::context::application_context::ApplicationContext;
+use application::env::property_resolver::PropertyResolver;
 use base64::engine::GeneralPurpose;
 use base64::{alphabet, Engine};
 use cbc::cipher::{BlockDecryptMut, KeyIvInit};
@@ -12,9 +13,7 @@ use serde_derive::{Deserialize, Serialize};
 use serde_json::to_string;
 use sha1_smol::Sha1;
 use std::error::Error;
-
 use super::auth::AccessToken;
-use application::environment::Environment;
 
 type AesCbcDec = Decryptor<Aes256>;
 
