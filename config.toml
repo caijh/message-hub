@@ -7,7 +7,7 @@ token = "0o9ABiAx3"
 encoding_aes_key = "IjK5lstPxlQquUYn6fiPJc2nwaxdqUrSMg5ElVYBWzA"
 
 [server]
-domain = "message.joinspace.dynv6.net"
+domain = "message.joinspace.pp.ua"
 
 [database]
 kind = "mysql"
