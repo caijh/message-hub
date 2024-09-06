@@ -12,7 +12,7 @@ database-common = { git = "https://caijh@bitbucket.org/bytebinary/database-commo
 database-mysql-seaorm = { git = "https://caijh@bitbucket.org/bytebinary/database-mysql-seaorm-rs.git" }
 sea-orm = { version = "1.0.0", features = ["sqlx-mysql", "runtime-tokio-rustls", "macros", "with-bigdecimal", "with-uuid", "with-json", "with-chrono", "with-time"] }
 # redis
-redis = { version = "0.24.0", features = ["rustls"] }
+redis = { version = "0.24.0", features = ["tls-rustls"] }
 redis-io = { git = "https://caijh@bitbucket.org/bytebinary/redis-io-rs.git" }
 
 futures = "0.3.30"
