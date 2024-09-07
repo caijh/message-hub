@@ -31,16 +31,16 @@ impl ApplicationListener for ApplicationContextInitializedListener {
             .get_property::<DbConnection>("database")
             .unwrap();
         let dao = Dao::new(db_connection).await;
-        application_context.context.set(dao);
+        application_context.set(dao);
 
         let redis_config = environment.get_property::<RedisConfig>("redis");
         if redis_config.is_some() {
             Redis::init(&redis_config.unwrap())
         }
 
-        application_context.context.set(UserService::default());
+        application_context.set(UserService::default());
 
-        application_context.context.set(WxCorpService::default());
+        application_context.set(WxCorpService::default());
         Ok(())
     }
 }

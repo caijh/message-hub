@@ -17,6 +17,7 @@ use crate::service::auth::{self, Signature};
 use crate::service::message::{get_message_detail, save_message_record, send_by_wx_corp};
 use crate::service::user::UserService;
 use crate::service::wx_corp;
+
 #[derive(Serialize, Deserialize, Debug)]
 pub struct WxCorpJoinValidate {
     msg_signature: String,
@@ -93,7 +94,7 @@ async fn send_to_user(
     environment: &ApplicationEnvironment,
 ) -> Result<String, Box<dyn Error>> {
     let application_context = APPLICATION_CONTEXT.read().await;
-    let user_service = application_context.context.get::<UserService>();
+    let user_service = application_context.get::<UserService>();
     let _user = user_service.get_user(&username).await?;
 
     let app_id = environment.get_property::<String>("wxcorp.app_id").unwrap();
