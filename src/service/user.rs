@@ -6,6 +6,7 @@ use redis_io::Redis;
 use serde_derive::{Deserialize, Serialize};
 
 use super::wx_corp::WxCorpService;
+use application::context::application_context::ApplicationContext;
 
 #[derive(Debug, Deserialize, Clone, Serialize)]
 pub struct User {
@@ -38,7 +39,7 @@ pub struct UserService {}
 impl UserService {
     async fn get_user_name_internal(&self, id: &str) -> Result<User, Box<dyn Error>> {
         let application_context = APPLICATION_CONTEXT.read().await;
-        let wx_corp_service = application_context.context.get::<WxCorpService>();
+        let wx_corp_service = application_context.get::<WxCorpService>();
         let token = wx_corp_service.get_access_token().await?;
         let client = reqwest::Client::new();
         let res: Result<User, reqwest::Error> = client
