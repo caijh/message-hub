@@ -18,7 +18,6 @@ redis-io = { git = "https://caijh@bitbucket.org/bytebinary/redis-io-rs.git" }
 futures = "0.3.30"
 chrono = "0.4"
 rust-crypto = "^0.2"
-rkv = "0.19.0"
 config = "0.14.0"
 clap = { version = "4.5.4", features = ["derive", "cargo"] }
 reqwest = { version = "0.11.27", features = ["json"] }
