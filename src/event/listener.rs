@@ -1,5 +1,5 @@
 use application::application::{Application, RustApplication};
-use application::context::application_context::ApplicationContext;
+use application::bean::factory::ConfigurableBeanFactory;
 use application::context::application_event::{ApplicationEvenType, ApplicationEvent};
 use application::context::application_listener::ApplicationListener;
 use application::env::property_resolver::PropertyResolver;
@@ -31,16 +31,16 @@ impl ApplicationListener for ApplicationContextInitializedListener {
             .get_property::<DbConnection>("database")
             .unwrap();
         let dao = Dao::new(db_connection).await;
-        application_context.set(dao);
+        application_context.get_bean_factory().set(dao);
 
         let redis_config = environment.get_property::<RedisConfig>("redis");
         if redis_config.is_some() {
             Redis::init(&redis_config.unwrap())
         }
 
-        application_context.set(UserService::default());
+        application_context.get_bean_factory().set(UserService::default());
 
-        application_context.set(WxCorpService::default());
+        application_context.get_bean_factory().set(WxCorpService::default());
         Ok(())
     }
 }

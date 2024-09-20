@@ -1,5 +1,5 @@
 use application::application::APPLICATION_CONTEXT;
-use application::context::application_context::ApplicationContext;
+use application::bean::factory::BeanFactory;
 use application::env::environment::ApplicationEnvironment;
 use application::env::property_resolver::PropertyResolver;
 use askama::Template;
@@ -94,7 +94,7 @@ async fn send_to_user(
     environment: &ApplicationEnvironment,
 ) -> Result<String, Box<dyn Error>> {
     let application_context = APPLICATION_CONTEXT.read().await;
-    let user_service = application_context.get::<UserService>();
+    let user_service = application_context.get_bean_factory().get::<UserService>();
     let _user = user_service.get_user(&username).await?;
 
     let app_id = environment.get_property::<String>("wxcorp.app_id").unwrap();

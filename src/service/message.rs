@@ -1,7 +1,7 @@
 use std::error::Error;
 
 use application::application::APPLICATION_CONTEXT;
-use application::context::application_context::ApplicationContext;
+use application::bean::factory::BeanFactory;
 use chrono::Local;
 use database_mysql_seaorm::Dao;
 use sea_orm::{
@@ -80,7 +80,7 @@ pub async fn send_by_wx_corp(
     let application_context = APPLICATION_CONTEXT.read().await;
     let msg = TextCardMessage::new(domain, app_id, username, uuid, title, content);
     let json = serde_json::to_string(&msg).unwrap();
-    let result = application_context.get::<WxCorpService>().send(&json).await;
+    let result = application_context.get_bean_factory().get::<WxCorpService>().send(&json).await;
 
     match result {
         Ok(result) => {
@@ -105,7 +105,7 @@ pub async fn save_message_record(
         send_time: Set(Some(Local::now().naive_local())),
     };
     let application_context = APPLICATION_CONTEXT.read().await;
-    let dao = application_context.get::<Dao>();
+    let dao = application_context.get_bean_factory().get::<Dao>();
     let conn = &dao.connection;
     let tx = conn.begin().await?;
     let result = message::Entity::insert(message).exec(conn).await?;
@@ -122,7 +122,7 @@ pub async fn save_message_record(
 
 pub async fn get_message_detail(uuid: &str) -> Result<Option<message::Model>, Box<dyn Error>> {
     let application_context = APPLICATION_CONTEXT.read().await;
-    let dao = application_context.get::<Dao>();
+    let dao = application_context.get_bean_factory().get::<Dao>();
     let message = message::Entity::find()
         .filter(message::Column::Uuid.eq(uuid))
         .one(&dao.connection)
