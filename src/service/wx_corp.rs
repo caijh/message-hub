@@ -1,7 +1,6 @@
 use aes::cipher::block_padding::Pkcs7;
 use aes::Aes256;
 use application::application::APPLICATION_CONTEXT;
-use application::context::application_context::ApplicationContext;
 use application::env::property_resolver::PropertyResolver;
 use base64::engine::GeneralPurpose;
 use base64::{alphabet, Engine};
