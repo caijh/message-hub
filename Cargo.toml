@@ -6,6 +6,8 @@ edition = "2021"
 
 [dependencies]
 application = { git = "https://caijh@bitbucket.org/bytebinary/application-rs.git" }
+application-web-macros = { git = "https://caijh@bitbucket.org/bytebinary/application-web-macros-rs.git" }
+application-web = { git = "https://caijh@bitbucket.org/bytebinary/application-web-rs.git" }
 util = { git = "https://caijh@bitbucket.org/bytebinary/util-rs.git" }
 database-common = { git = "https://caijh@bitbucket.org/bytebinary/database-common-rs.git" }
 # database = { git = "https://caijh@bitbucket.org/bytebinary/database-rs.git" }

@@ -2,6 +2,7 @@ use application::application::APPLICATION_CONTEXT;
 use application::bean::factory::BeanFactory;
 use application::env::environment::ApplicationEnvironment;
 use application::env::property_resolver::PropertyResolver;
+use application_web_macros::{get, post};
 use askama::Template;
 use axum::extract::{Path, Query};
 use axum::http::StatusCode;
@@ -33,6 +34,7 @@ pub struct MsgReqBody {
     pub content: String,
 }
 
+#[get("/")]
 pub async fn do_get_wx_corp_receive(Query(params): Query<WxCorpJoinValidate>) -> impl IntoResponse {
     debug!("get /");
     debug!("query params: {:?}", params);
@@ -58,10 +60,12 @@ pub async fn do_get_wx_corp_receive(Query(params): Query<WxCorpJoinValidate>) ->
     RespBody::from_result(&result).response()
 }
 
+#[post("/")]
 pub async fn do_post_wx_corp_receive() -> impl IntoResponse {
     RespBody::from(&"".to_string()).response()
 }
 
+#[post("/send/:username")]
 pub async fn handle_send_message(
     Path(username): Path<String>,
     Query(query): Query<Signature>,
@@ -121,6 +125,7 @@ struct MessageTemplate {
     send_time: NaiveDateTime,
 }
 
+#[get("/message/:id")]
 pub async fn handle_message_detail(Path(id): Path<String>) -> impl IntoResponse {
     let message = get_message_detail(&id).await.unwrap();
     let message = message.unwrap();
