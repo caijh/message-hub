@@ -95,22 +95,22 @@ async fn send_to_user(
 ) -> Result<String, Box<dyn Error>> {
     let application_context = APPLICATION_CONTEXT.read().await;
     let user_service = application_context.get_bean_factory().get::<UserService>();
-    let _user = user_service.get_user(&username).await?;
+    let _user = user_service.get_user(username).await?;
 
     let app_id = environment.get_property::<String>("wxcorp.app_id").unwrap();
     let domain = environment.get_property::<String>("server.domain").unwrap();
     let message_uuid = uuid::Uuid::new_v4().to_string();
-    let resutl = send_by_wx_corp(
+    let result = send_by_wx_corp(
         &domain,
         app_id.as_str(),
-        &username,
+        username,
         &message_uuid,
         title,
         content,
     )
     .await?;
     save_message_record(&message_uuid, title, content, username).await?;
-    Ok(resutl)
+    Ok(result)
 }
 
 #[derive(Template)]
