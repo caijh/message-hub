@@ -1,7 +1,5 @@
-use std::error::Error;
-
-use application::application::APPLICATION_CONTEXT;
-use application::bean::factory::BeanFactory;
+use application_beans::factory::bean_factory::BeanFactory;
+use application_boot::application::APPLICATION_CONTEXT;
 use chrono::Local;
 use database_mysql_seaorm::Dao;
 use sea_orm::{
@@ -9,6 +7,7 @@ use sea_orm::{
     TransactionTrait,
 };
 use serde_derive::{Deserialize, Serialize};
+use std::error::Error;
 
 use crate::entity::message;
 use crate::entity::message_receiver;
@@ -80,7 +79,11 @@ pub async fn send_by_wx_corp(
     let application_context = APPLICATION_CONTEXT.read().await;
     let msg = TextCardMessage::new(domain, app_id, username, uuid, title, content);
     let json = serde_json::to_string(&msg).unwrap();
-    let result = application_context.get_bean_factory().get::<WxCorpService>().send(&json).await;
+    let result = application_context
+        .get_bean_factory()
+        .get::<WxCorpService>()
+        .send(&json)
+        .await;
 
     match result {
         Ok(result) => {

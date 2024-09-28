@@ -1,9 +1,9 @@
-use std::error::Error;
-
-use application::{application::APPLICATION_CONTEXT, bean::factory::BeanFactory};
+use application_beans::factory::bean_factory::BeanFactory;
+use application_boot::application::APPLICATION_CONTEXT;
 use redis::Commands;
 use redis_io::Redis;
 use serde_derive::{Deserialize, Serialize};
+use std::error::Error;
 
 use super::wx_corp::WxCorpService;
 
@@ -38,7 +38,9 @@ pub struct UserService {}
 impl UserService {
     async fn get_user_name_internal(&self, id: &str) -> Result<User, Box<dyn Error>> {
         let application_context = APPLICATION_CONTEXT.read().await;
-        let wx_corp_service = application_context.get_bean_factory().get::<WxCorpService>();
+        let wx_corp_service = application_context
+            .get_bean_factory()
+            .get::<WxCorpService>();
         let token = wx_corp_service.get_access_token().await?;
         let client = reqwest::Client::new();
         let res: Result<User, reqwest::Error> = client
