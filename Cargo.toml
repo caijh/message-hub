@@ -5,12 +5,16 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-application = { git = "https://caijh@bitbucket.org/bytebinary/application-rs.git" }
-application-web-macros = { git = "https://caijh@bitbucket.org/bytebinary/application-web-macros-rs.git" }
-application-web = { git = "https://caijh@bitbucket.org/bytebinary/application-web-rs.git" }
+application-beans = { git = "https://github.com/caijh/application-rs.git" }
+application-core = { git = "https://github.com/caijh/application-rs.git" }
+application-context = { git = "https://github.com/caijh/application-rs.git" }
+application-web = { git = "https://github.com/caijh/application-rs.git" }
+application-web-macros = { git = "https://github.com/caijh/application-rs.git" }
+application-web-actuator = { git = "https://github.com/caijh/application-rs.git" }
+application-boot = { git = "https://github.com/caijh/application-rs.git" }
+
 util = { git = "https://caijh@bitbucket.org/bytebinary/util-rs.git" }
 database-common = { git = "https://caijh@bitbucket.org/bytebinary/database-common-rs.git" }
-# database = { git = "https://caijh@bitbucket.org/bytebinary/database-rs.git" }
 database-mysql-seaorm = { git = "https://caijh@bitbucket.org/bytebinary/database-mysql-seaorm-rs.git" }
 sea-orm = { version = "1.0.1", features = ["sqlx-mysql", "runtime-tokio-rustls", "macros", "with-bigdecimal", "with-uuid", "with-json", "with-chrono", "with-time"] }
 # redis
@@ -40,7 +44,5 @@ tracing = "0.1.40"
 cbc = { version = "0.1.2", features = ["alloc"] }
 tokio = { version = "1.40.0", features = ["full"] }
 axum = "0.7.6"
-web = {git = "https://caijh@bitbucket.org/bytebinary/web-rs.git"}
-#web = { path = "../../lib-rs/web-rs" }
 async-trait = "0.1.82"
 askama = "0.11"

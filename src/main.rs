@@ -1,4 +1,4 @@
-use application::application::{Application, RustApplication};
+use application_boot::application::{Application, RustApplication};
 use message_hub::event::listener::ApplicationContextInitializedListener;
 use std::error::Error;
 

@@ -1,7 +1,8 @@
-use application::application::APPLICATION_CONTEXT;
-use application::bean::factory::BeanFactory;
-use application::env::environment::ApplicationEnvironment;
-use application::env::property_resolver::PropertyResolver;
+use application_beans::factory::bean_factory::BeanFactory;
+use application_boot::application::APPLICATION_CONTEXT;
+use application_core::env::environment::ApplicationEnvironment;
+use application_core::env::property_resolver::PropertyResolver;
+use application_web::response::RespBody;
 use application_web_macros::{get, post};
 use askama::Template;
 use axum::extract::{Path, Query};
@@ -12,7 +13,6 @@ use chrono::NaiveDateTime;
 use serde_derive::{Deserialize, Serialize};
 use std::error::Error;
 use tracing::debug;
-use web::response::RespBody;
 
 use crate::service::auth::{self, Signature};
 use crate::service::message::{get_message_detail, save_message_record, send_by_wx_corp};

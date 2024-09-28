@@ -1,8 +1,8 @@
-use application::application::{Application, RustApplication};
-use application::bean::factory::ConfigurableBeanFactory;
-use application::context::application_event::{ApplicationEvenType, ApplicationEvent};
-use application::context::application_listener::ApplicationListener;
-use application::env::property_resolver::PropertyResolver;
+use application_beans::factory::bean_factory::ConfigurableBeanFactory;
+use application_boot::application::{Application, RustApplication};
+use application_boot::application_listener::ApplicationListener;
+use application_context::context::application_event::{ApplicationEvenType, ApplicationEvent};
+use application_core::env::property_resolver::PropertyResolver;
 use database_common::connection::DbConnection;
 use database_mysql_seaorm::Dao;
 use redis_io::{Redis, RedisConfig};
@@ -38,9 +38,13 @@ impl ApplicationListener for ApplicationContextInitializedListener {
             Redis::init(&redis_config.unwrap())
         }
 
-        application_context.get_bean_factory().set(UserService::default());
+        application_context
+            .get_bean_factory()
+            .set(UserService::default());
 
-        application_context.get_bean_factory().set(WxCorpService::default());
+        application_context
+            .get_bean_factory()
+            .set(WxCorpService::default());
         Ok(())
     }
 }
