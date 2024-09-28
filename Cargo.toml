@@ -8,14 +8,13 @@ edition = "2021"
 application-beans = { git = "https://github.com/caijh/application-rs.git" }
 application-core = { git = "https://github.com/caijh/application-rs.git" }
 application-context = { git = "https://github.com/caijh/application-rs.git" }
-application-boot = { git = "https://github.com/caijh/application-rs.git" }
 application-web = { git = "https://github.com/caijh/application-rs.git" }
 application-web-macros = { git = "https://github.com/caijh/application-rs.git" }
 application-web-actuator = { git = "https://github.com/caijh/application-rs.git" }
+application-boot = { git = "https://github.com/caijh/application-rs.git" }
 
 util = { git = "https://caijh@bitbucket.org/bytebinary/util-rs.git" }
 database-common = { git = "https://caijh@bitbucket.org/bytebinary/database-common-rs.git" }
-# database = { git = "https://caijh@bitbucket.org/bytebinary/database-rs.git" }
 database-mysql-seaorm = { git = "https://caijh@bitbucket.org/bytebinary/database-mysql-seaorm-rs.git" }
 sea-orm = { version = "1.0.1", features = ["sqlx-mysql", "runtime-tokio-rustls", "macros", "with-bigdecimal", "with-uuid", "with-json", "with-chrono", "with-time"] }
 # redis
