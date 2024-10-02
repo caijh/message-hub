@@ -14,8 +14,8 @@ application-web-actuator = { git = "https://github.com/caijh/application-rs.git"
 application-boot = { git = "https://github.com/caijh/application-rs.git" }
 
 util = { git = "https://caijh@bitbucket.org/bytebinary/util-rs.git" }
-database-common = { git = "https://caijh@bitbucket.org/bytebinary/database-common-rs.git" }
-database-mysql-seaorm = { git = "https://caijh@bitbucket.org/bytebinary/database-mysql-seaorm-rs.git" }
+database-common = { git = "https://github.com/caijh/application-rs.git" }
+database-mysql-seaorm = { git = "https://github.com/caijh/application-rs.git" }
 sea-orm = { version = "1.0.1", features = ["sqlx-mysql", "runtime-tokio-rustls", "macros", "with-bigdecimal", "with-uuid", "with-json", "with-chrono", "with-time"] }
 # redis
 redis = { version = "0.24.0", features = ["tls-rustls"] }
