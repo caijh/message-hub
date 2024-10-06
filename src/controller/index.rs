@@ -154,8 +154,3 @@ where
         }
     }
 }
-
-#[get("/health/check")]
-pub async fn health_check() -> impl IntoResponse {
-    "Ok"
-}
