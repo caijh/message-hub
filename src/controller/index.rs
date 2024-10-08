@@ -57,12 +57,12 @@ pub async fn do_get_wx_corp_receive(Query(params): Query<WxCorpJoinValidate>) ->
         echo_str,
         aes_key.as_str(),
     );
-    RespBody::from_result(&result).response()
+    RespBody::result(&result).response()
 }
 
 #[post("/")]
 pub async fn do_post_wx_corp_receive() -> impl IntoResponse {
-    RespBody::from(&"".to_string()).response()
+    RespBody::<()>::success_info("").response()
 }
 
 #[post("/send/:username")]
@@ -88,7 +88,7 @@ pub async fn handle_send_message(
 
     let title = message.title.clone().unwrap_or_default();
     let user = send_to_user(&username, &title, content, &environment).await;
-    RespBody::from_result(&user).response()
+    RespBody::result(&user).response()
 }
 
 async fn send_to_user(
