@@ -1,5 +1,5 @@
 use application_beans::factory::bean_factory::BeanFactory;
-use application_boot::application::APPLICATION_CONTEXT;
+use application_context::context::application_context::APPLICATION_CONTEXT;
 use application_core::env::environment::ApplicationEnvironment;
 use application_core::env::property_resolver::PropertyResolver;
 use application_web::response::RespBody;

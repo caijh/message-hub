@@ -1,7 +1,7 @@
 use super::auth::AccessToken;
 use aes::cipher::block_padding::Pkcs7;
 use aes::Aes256;
-use application_boot::application::APPLICATION_CONTEXT;
+use application_context::context::application_context::APPLICATION_CONTEXT;
 use application_core::env::property_resolver::PropertyResolver;
 use base64::engine::GeneralPurpose;
 use base64::{alphabet, Engine};

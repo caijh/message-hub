@@ -1,11 +1,10 @@
+use super::wx_corp::WxCorpService;
 use application_beans::factory::bean_factory::BeanFactory;
-use application_boot::application::APPLICATION_CONTEXT;
+use application_context::context::application_context::APPLICATION_CONTEXT;
 use redis::Commands;
 use redis_io::Redis;
 use serde_derive::{Deserialize, Serialize};
 use std::error::Error;
-
-use super::wx_corp::WxCorpService;
 
 #[derive(Debug, Deserialize, Clone, Serialize)]
 pub struct User {
