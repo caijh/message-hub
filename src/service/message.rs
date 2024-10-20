@@ -1,5 +1,8 @@
+use crate::entity::message;
+use crate::entity::message_receiver;
+use crate::service::wx_corp::WxCorpService;
 use application_beans::factory::bean_factory::BeanFactory;
-use application_boot::application::APPLICATION_CONTEXT;
+use application_context::context::application_context::APPLICATION_CONTEXT;
 use chrono::Local;
 use database_mysql_seaorm::Dao;
 use sea_orm::{
@@ -8,10 +11,6 @@ use sea_orm::{
 };
 use serde_derive::{Deserialize, Serialize};
 use std::error::Error;
-
-use crate::entity::message;
-use crate::entity::message_receiver;
-use crate::service::wx_corp::WxCorpService;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct TextCardMessage {
