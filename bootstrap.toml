@@ -8,10 +8,10 @@ locations = ["."]
 file_names = ["config.toml"]
 
 [application.cloud.discovery]
-address = "http://127.0.0.1:8500"
-token = ""
-service.check.address = "http://127.0.0.1:8080/actuator/health"
-service.check.interval = "30s"
+server.address = "http://127.0.0.1:8500"
+server.token = ""
+host.ip = "127.0.0.1"
+host.port = 8080
 
 [application.cloud.config]
 enabled = false
