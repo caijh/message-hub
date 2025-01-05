@@ -21,28 +21,18 @@ sea-orm = { version = "1.1.3", features = ["sqlx-mysql", "runtime-tokio-rustls",
 redis = { version = "0.27.6", features = ["tls-native-tls"] }
 redis-io = { git = "https://caijh@bitbucket.org/bytebinary/redis-io-rs.git" }
 
-futures = "0.3.31"
 chrono = "0.4"
-rust-crypto = "^0.2"
-config = "0.14.1"
-clap = { version = "4.5.23", features = ["derive", "cargo"] }
-reqwest = { version = "0.12.11", features = ["json"] }
-quick-xml = "0.36.2"
+reqwest = { version = "0.12.12", features = ["json"] }
 uuid = { version = "1.11.0", features = ["v4"] }
 sha1_smol = "1.0.1"
 base64 = "0.22.1"
 aes = "0.8.4"
-state = "0.6.0"
 serde = "1.0.217"
 serde_derive = "1.0.217"
 serde_json = "1.0.134"
-env_logger = "0.11.6"
-lazy_static = "1.5.0"
-url = "2.5.4"
-parking_lot = "0.12.3"
 tracing = "0.1.41"
 cbc = { version = "0.1.2", features = ["alloc"] }
 tokio = { version = "1.42.0", features = ["full"] }
 axum = "0.7.9"
-async-trait = "0.1.83"
+async-trait = "0.1.84"
 askama = "0.11"
