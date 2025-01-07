@@ -1,6 +1,5 @@
 use application_beans::factory::bean_factory::BeanFactory;
 use application_context::context::application_context::APPLICATION_CONTEXT;
-use application_core::env::environment::ApplicationEnvironment;
 use application_core::env::property_resolver::PropertyResolver;
 use application_web::response::RespBody;
 use application_web_macros::{get, post};
@@ -14,7 +13,7 @@ use serde_derive::{Deserialize, Serialize};
 use std::error::Error;
 use tracing::debug;
 
-use crate::service::auth::{self, Signature};
+use crate::service::auth::{self};
 use crate::service::message::{get_message_detail, save_message_record, send_by_wx_corp};
 use crate::service::user::UserService;
 use crate::service::wx_corp;
@@ -65,42 +64,35 @@ pub async fn do_post_wx_corp_receive() -> impl IntoResponse {
     RespBody::<()>::success_info("").response()
 }
 
-#[post("/send/:username")]
+#[post("/send/user/:token")]
 pub async fn handle_send_message(
-    Path(username): Path<String>,
-    Query(query): Query<Signature>,
+    Path(token): Path<String>,
     Json(message): Json<MsgReqBody>,
 ) -> impl IntoResponse {
-    debug!("POST /send/{}", username);
-    let signature = &query.signature;
-    let timestamp = &query.timestamp;
-    let nonce = &query.nonce;
-    let content = message.content.as_str();
-    let application_context = APPLICATION_CONTEXT.read().await;
-    let environment = application_context.get_environment().await;
-    let token = environment.get_property::<String>("wxcorp.token").unwrap();
-    if !auth::check_signature(signature, token.as_str(), timestamp, nonce, content) {
-        debug!("auth failed!");
-        return (StatusCode::FORBIDDEN, "auth failed").into_response();
+    let check_result = auth::check_token(&token).await;
+    if !check_result.0 {
+        return (StatusCode::FORBIDDEN, check_result.1).into_response();
     }
-    debug!("auth pass!");
+    let username = check_result.1;
+    debug!("POST /send/{}", username);
+    let content = message.content.as_str();
     debug!("msg:{}", message.content);
 
     let title = message.title.clone().unwrap_or_default();
-    let user = send_to_user(&username, &title, content, &environment).await;
-    RespBody::result(&user).response()
+    let result = send_to_user(&username, &title, content).await;
+    RespBody::result(&result).response()
 }
 
 async fn send_to_user(
     username: &str,
     title: &str,
     content: &str,
-    environment: &ApplicationEnvironment,
 ) -> Result<String, Box<dyn Error>> {
     let application_context = APPLICATION_CONTEXT.read().await;
     let user_service = application_context.get_bean_factory().get::<UserService>();
     let _user = user_service.get_user(username).await?;
 
+    let environment = application_context.get_environment().await;
     let app_id = environment.get_property::<String>("wxcorp.app_id").unwrap();
     let domain = environment.get_property::<String>("server.domain").unwrap();
     let message_uuid = uuid::Uuid::new_v4().to_string();
