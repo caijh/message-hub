@@ -1,10 +1,10 @@
 # 企业微信地址
 [wxcorp]
-id = "wx5acd74cc05ef6132"
-secret = "Os5rC2-aEGC84V1wcLsjpCOadVXrUknQvj_1NC_ws_E"
-app_id = "1000002"
-token = "0o9ABiAx3"
-encoding_aes_key = "IjK5lstPxlQquUYn6fiPJc2nwaxdqUrSMg5ElVYBWzA"
+id = ""
+secret = ""
+app_id = ""
+token = ""
+encoding_aes_key = ""
 
 [server]
 domain = "message.joinspace.pp.ua"
